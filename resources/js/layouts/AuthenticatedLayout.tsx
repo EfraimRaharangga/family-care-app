@@ -1,11 +1,13 @@
 /**
  * Purpose: Primary Authenticated Page Wrapper for FC R&D Servants & Members.
  * Domain Context: Wraps authenticated routes with the Calm Editorial Neutral
- *                 alabaster/slate canvas (`#F8FAFC`) and TopBar navigation.
- * Key Dependencies: @/components/layout/TopBar
+ *                 alabaster/slate canvas (`#F8FAFC`), TopBar header (with mobile hamburger menu),
+ *                 and desktop SideBar navigation.
+ * Key Dependencies: @/components/layout/TopBar, @/components/layout/SideBar
  */
 import * as React from 'react';
 
+import { SideBar } from '@/components/layout/SideBar';
 import { TopBar } from '@/components/layout/TopBar';
 
 export interface AuthenticatedLayoutProps {
@@ -20,7 +22,12 @@ export default function AuthenticatedLayout({ children, cellName = 'FC R&D' }: A
     return (
         <div className="min-h-screen bg-[#F8FAFC] text-[#1E293B]">
             <TopBar cellName={cellName} />
-            <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
+            <div className="flex min-h-[calc(100vh-4rem)]">
+                <SideBar />
+                <main className="min-w-0 flex-1 px-4 py-8 sm:px-6 lg:px-8">
+                    <div className="mx-auto max-w-6xl">{children}</div>
+                </main>
+            </div>
         </div>
     );
 }
