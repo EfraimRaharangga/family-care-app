@@ -1,11 +1,12 @@
 /**
- * Purpose: FC R&D Member Login Page (Google OAuth Whitelist + Local Dev Password Fallback).
+ * Purpose: FC R&D Member & Servant Login Page (Google OAuth Whitelist + Local Dev Fallback).
  * Domain Context: Primary authentication gate for Family Care — History Maker,
- *                 styled with the Calm Editorial Neutral design system.
+ *                 styled with the Calm Editorial Neutral design system. Includes quick
+ *                 access to the public `/feedback` PIN portal and 1-click local demo fill.
  * Key Dependencies: @inertiajs/react, @/layouts/auth-layout
  */
-import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle, ShieldCheck } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { KeyRound, LoaderCircle, MessageSquareHeart, ShieldCheck } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 import InputError from '@/components/input-error';
@@ -41,12 +42,40 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         });
     };
 
+    const fillDemoAccount = (email: string): void => {
+        setData({
+            email,
+            password: 'password',
+            remember: true,
+        });
+    };
+
     return (
         <AuthLayout
             title="FC R&D Member Login"
-            description="Sign in with your whitelisted Google account or local member credentials"
+            description="Masuk menggunakan akun Google Whitelist pengurus atau kredensial lokal"
         >
-            <Head title="Member Login" />
+            <Head title="Login Pengurus — FC R&D" />
+
+            {/* Quick Link for Cell Members looking for the Anonymous Feedback Portal */}
+            <div className="mb-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
+                <div className="flex items-center justify-between gap-3">
+                    <div>
+                        <p className="font-mono text-[11px] font-semibold text-[#1E293B] uppercase">
+                            Anggota Komsel FC R&D?
+                        </p>
+                        <p className="text-xs text-[#64748B]">
+                            Kirim feedback 100% anonim dengan 4-digit PIN tanpa login.
+                        </p>
+                    </div>
+                    <Link href="/feedback">
+                        <Button type="button" variant="outline" size="sm">
+                            <MessageSquareHeart className="h-3.5 w-3.5 text-[#4F46E5]" />
+                            <span>Isi Feedback</span>
+                        </Button>
+                    </Link>
+                </div>
+            </div>
 
             <div className="mb-4">
                 <a href="/auth/google/redirect" className="block w-full">
@@ -60,15 +89,15 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             <div className="relative my-2 flex items-center justify-center">
                 <div className="w-full border-t border-dashed border-[#E2E8F0]" />
                 <span className="bg-[#F8FAFC] px-3 font-mono text-[11px] font-medium text-[#64748B] uppercase">
-                    OR LOCAL DEV FALLBACK
+                    ATAU LOGIN PENGURUS (LOCAL DEV)
                 </span>
                 <div className="w-full border-t border-dashed border-[#E2E8F0]" />
             </div>
 
-            <form className="flex flex-col gap-6" onSubmit={submit}>
-                <div className="grid gap-6">
+            <form className="flex flex-col gap-5" onSubmit={submit}>
+                <div className="grid gap-5">
                     <div className="grid gap-2">
-                        <Label htmlFor="email">Email address</Label>
+                        <Label htmlFor="email">Alamat Email</Label>
                         <Input
                             id="email"
                             type="email"
@@ -88,7 +117,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             <Label htmlFor="password">Password</Label>
                             {canResetPassword && (
                                 <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
-                                    Forgot password?
+                                    Lupa password?
                                 </TextLink>
                             )}
                         </div>
@@ -113,19 +142,45 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             onClick={() => setData('remember', !data.remember)}
                             tabIndex={3}
                         />
-                        <Label htmlFor="remember">Remember me</Label>
+                        <Label htmlFor="remember">Ingat saya</Label>
                     </div>
 
-                    <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processing}>
+                    <Button type="submit" className="mt-2 w-full" tabIndex={4} disabled={processing}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Log in
+                        Masuk ke Dashboard
                     </Button>
                 </div>
 
+                {/* Quick Demo Fill Helpers for Local Testing */}
+                <div className="rounded-lg border border-dashed border-[#CBD5E1] bg-[#F8FAFC] p-3">
+                    <div className="mb-2 flex items-center gap-1.5 font-mono text-[11px] font-medium text-[#475569]">
+                        <KeyRound className="h-3.5 w-3.5 text-[#64748B]" />
+                        <span>AKUN DEMO PENGURUS (PASSWORD: password)</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                        <button
+                            type="button"
+                            onClick={() => fillDemoAccount('brain@fcrnd.local')}
+                            className="rounded-md border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-left font-mono text-[11px] text-[#1E293B] transition-colors hover:border-[#CBD5E1] hover:bg-[#F1F5F9]"
+                        >
+                            <div className="font-semibold">🧠 Leader (Brain)</div>
+                            <div className="text-[10px] text-[#64748B]">brain@fcrnd.local</div>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => fillDemoAccount('it@fcrnd.local')}
+                            className="rounded-md border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-left font-mono text-[11px] text-[#1E293B] transition-colors hover:border-[#CBD5E1] hover:bg-[#F1F5F9]"
+                        >
+                            <div className="font-semibold">⚡ Sie IT (Nervous)</div>
+                            <div className="text-[10px] text-[#64748B]">it@fcrnd.local</div>
+                        </button>
+                    </div>
+                </div>
+
                 <div className="text-muted-foreground text-center text-sm">
-                    Don't have an account?{' '}
+                    Belum punya akun?{' '}
                     <TextLink href={route('register')} tabIndex={5}>
-                        Sign up
+                        Daftar
                     </TextLink>
                 </div>
             </form>

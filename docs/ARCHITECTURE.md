@@ -10,7 +10,7 @@
    - **Single Cron Entrypoint:** Background jobs and scheduled pastoral radar checks run through a single standard cPanel Cron Job (`* * * * * php /home/cpanel_user/app/artisan schedule:run >> /dev/null 2>&1`).
    - **Pre-Compiled Vite Assets:** Frontend assets (`React 19` + `TypeScript` + `Tailwind CSS v4`) compile locally into `public/build/manifest.json` so the production server requires zero Node.js runtime.
 2. **100% Technical Anonymity (`feedbacks`):**
-   - Stewarded by the **Nervous System (IT Team)**. The `feedbacks` table deliberately omits `user_id`, `ip_address`, `user_agent`, and browser fingerprint columns. Access is gated solely by a 6-character event PIN (`feedback_pin`).
+   - Stewarded by the **Nervous System (IT Team)**. The `feedbacks` table deliberately omits `user_id`, `ip_address`, `user_agent`, and browser fingerprint columns. Access is gated solely by a daily 4-digit numeric event PIN (`feedback_pin` + `pin_expires_at` 24-hour window).
 3. **Immutable Financial Audit Trail (`transactions`):**
    - Stewarded by the **Vascular System (Treasurer)**. The `Transaction` model enforces Laravel `SoftDeletes` (`deleted_at`), blocks `forceDelete` via `TransactionPolicy`, and records every creation, update, or void action into `activity_log` via `spatie/laravel-activitylog`.
 
@@ -83,7 +83,8 @@ erDiagram
         string status "EventStatus"
         datetime scheduled_at
         smallint duration_minutes "Default 90"
-        string feedback_pin UK "6-char PIN"
+        string feedback_pin UK "4-digit PIN"
+        timestamp pin_expires_at "24h window"
     }
 
     FEEDBACKS {
@@ -91,10 +92,12 @@ erDiagram
         bigint cell_id FK
         bigint event_id FK
         tinyint rating "1-5 (NO user_id / NO IP)"
-        tinyint mood_score
-        text highlights
-        text improvements
-        text prayer_or_suggestion
+        string category "FeedbackCategory"
+        text message
+        boolean needs_pastoral_care
+        string contact_name "Nullable"
+        string contact_info "Nullable"
+        boolean is_reviewed
     }
 
     FINANCE_FUNDS {

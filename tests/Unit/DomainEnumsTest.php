@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 /**
  * Purpose: Pest PHP Unit Tests for FC R&D Native PHP 8.3+ Domain Enums.
- * Domain Context: Verifies `UserTier`, `VitalOrgan`, `FundType`, `EventType`, and `EventStatus`
- *                 backing values, metadata helpers, Spatie RBAC mappings, and Gamut tokens.
+ * Domain Context: Verifies `UserTier`, `VitalOrgan`, `FundType`, `EventType`, `FeedbackCategory`,
+ *                 and `EventStatus` backing values, metadata helpers, and Spatie RBAC mappings.
  * Key Dependencies: `App\Enums\*`.
  */
 
 use App\Enums\EventStatus;
 use App\Enums\EventType;
+use App\Enums\FeedbackCategory;
 use App\Enums\FundType;
 use App\Enums\UserTier;
 use App\Enums\VitalOrgan;
@@ -57,9 +58,21 @@ it('defines the 3 virtual fund types for FC R&D financial stewardship', function
         ->and(FundType::SpecialEvent->label())->toBe('Dana Acara Khusus');
 });
 
-it('defaults standard cell gatherings to a 90-minute run sheet duration and controls feedback PIN state', function (): void {
-    expect(EventType::CellGathering->defaultDurationMinutes())->toBe(90)
-        ->and(EventStatus::Ongoing->acceptsFeedback())->toBeTrue()
+it('defines the 4 FC R&D EventType cases and 4 FeedbackCategory cases for Phase 1', function (): void {
+    expect(EventType::cases())->toHaveCount(4)
+        ->and(EventType::MeetFc5->label())->toBe('Meet FC 5')
+        ->and(EventType::CeritaNabiNabi->label())->toBe('Cerita Nabi-Nabi')
+        ->and(EventType::TendMaker->label())->toBe('Tend Maker')
+        ->and(EventType::Regular->label())->toBe('Regular')
+        ->and(EventType::Regular->defaultDurationMinutes())->toBe(90);
+
+    expect(FeedbackCategory::cases())->toHaveCount(4)
+        ->and(FeedbackCategory::Materi->label())->toBe('Materi')
+        ->and(FeedbackCategory::Hospitality->label())->toBe('Hospitality / Suasana')
+        ->and(FeedbackCategory::AcaraGames->label())->toBe('Acara & Games')
+        ->and(FeedbackCategory::Lainnya->label())->toBe('Lainnya');
+
+    expect(EventStatus::Ongoing->acceptsFeedback())->toBeTrue()
         ->and(EventStatus::Completed->acceptsFeedback())->toBeTrue()
         ->and(EventStatus::Draft->acceptsFeedback())->toBeFalse()
         ->and(EventStatus::Cancelled->acceptsFeedback())->toBeFalse();

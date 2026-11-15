@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Seeds the complete Phase 0 foundational dataset for `FC R&D` (Family Care — History Maker).
+ * Purpose: Seeds the complete Phase 0 & Phase 1 dataset for `FC R&D` (Family Care — History Maker).
  * Domain Context: Initializes the `FC R&D` cell tenant, Spatie RBAC roles & permissions
  *                 (`Part`, `Vital`, and all 5 `VitalOrgan` sub-roles), initial whitelisted
  *                 members, the 3 virtual funds (`Kas Rutin`, `Dana Diakonia & Kado`,
- *                 `Dana Acara Khusus`), 90-minute run sheet rosters, anonymous feedback,
- *                 and pastoral follow-up records.
+ *                 `Dana Acara Khusus`), 90-minute run sheet rosters, multi-session events
+ *                 with active 4-digit PIN (`2408`), and 100% anonymous feedbacks.
  * Key Dependencies: `Spatie\Permission\PermissionRegistrar`, `LedgerBalanceService`, `GenerateEventPinAction`.
  */
 
@@ -17,6 +17,7 @@ namespace Database\Seeders;
 use App\Actions\GenerateEventPinAction;
 use App\Enums\EventStatus;
 use App\Enums\EventType;
+use App\Enums\FeedbackCategory;
 use App\Enums\FundType;
 use App\Enums\UserTier;
 use App\Enums\VitalOrgan;
@@ -63,7 +64,12 @@ class DatabaseSeeder extends Seeder
         $partRole->syncPermissions(['events.view', 'feedback.submit']);
 
         $vitalRole = Role::findOrCreate(UserTier::Vital->spatieRoleName(), 'web');
-        $vitalRole->syncPermissions(['events.view', 'feedback.submit']);
+        $vitalRole->syncPermissions([
+            'events.view',
+            'feedback.submit',
+            'feedback.manage_pins',
+            'feedback.view_analytics',
+        ]);
 
         // 5 Vital Organ Sub-Roles
         foreach (VitalOrgan::cases() as $organ) {
@@ -163,7 +169,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Daniel Setiawan', 'email' => 'daniel.part@fcrnd.local', 'birth_date' => '2002-02-14'],
             ['name' => 'Grace Tanoto', 'email' => 'grace.part@fcrnd.local', 'birth_date' => '2002-07-09'],
             ['name' => 'Samuel Gunawan', 'email' => 'samuel.part@fcrnd.local', 'birth_date' => '2001-12-03'],
-            ['name' => 'kezia.part@fcrnd.local' === 'kezia.part@fcrnd.local' ? 'Kezia Putri' : 'Kezia', 'email' => 'kezia.part@fcrnd.local', 'birth_date' => '2003-03-21'],
+            ['name' => 'Kezia Putri', 'email' => 'kezia.part@fcrnd.local', 'birth_date' => '2003-03-21'],
             ['name' => 'Michael Hendrawan', 'email' => 'michael.part@fcrnd.local', 'birth_date' => '2002-09-17'],
         ];
 
@@ -213,7 +219,6 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // Seed initial ledger transactions if none exist yet
         if ($fcRndCell->transactions()->count() === 0) {
             $treasurer = $vitalUsers[VitalOrgan::VascularSystem->value];
 
@@ -267,7 +272,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // =========================================================================
-        // 5. EVENTS, 90-MINUTE RUN SHEET ROSTERS, FEEDBACK & PASTORAL FOLLOW-UPS
+        // 5. EVENTS, 4-DIGIT PIN SESSIONS & 100% ANONYMOUS FEEDBACKS
         // =========================================================================
         $pinAction = app(GenerateEventPinAction::class);
         $brainUser = $vitalUsers[VitalOrgan::Brain->value];
@@ -275,42 +280,86 @@ class DatabaseSeeder extends Seeder
         $hospitalityUser = $vitalUsers[VitalOrgan::HandsAndFeet->value];
         $itUser = $vitalUsers[VitalOrgan::NervousSystem->value];
 
-        $completedEvent = Event::query()->updateOrCreate(
+        $event12 = Event::query()->updateOrCreate(
             [
                 'cell_id' => $fcRndCell->id,
-                'title' => 'FC R&D Gathering #14: Architecture of Belonging',
+                'title' => 'Cerita Nabi-Nabi: Kesetiaan Elia di Gunung Karmel',
             ],
             [
-                'type' => EventType::CellGathering,
+                'type' => EventType::CeritaNabiNabi,
                 'status' => EventStatus::Completed,
-                'scheduled_at' => now()->subDays(3)->setTime(19, 0),
+                'scheduled_at' => now()->subDays(21)->setTime(19, 0),
                 'duration_minutes' => 90,
                 'location' => 'Basecamp History Maker — Ruang R&D Lt. 2',
-                'feedback_pin' => 'FCRND7',
-                'notes' => '90-minute gathering focused on organ stewardship and welcoming new members.',
+                'feedback_pin' => '1842',
+                'pin_expires_at' => now()->subDays(20),
+                'notes' => 'Diskusi naratif Perjanjian Lama dan refleksi iman praktis.',
                 'created_by' => $brainUser->id,
             ]
         );
 
-        Event::query()->updateOrCreate(
+        $event13 = Event::query()->updateOrCreate(
             [
                 'cell_id' => $fcRndCell->id,
-                'title' => 'FC R&D Gathering #15: Rhythm of Grace',
+                'title' => 'Tend Maker Night: Faith & Career Excellence',
             ],
             [
-                'type' => EventType::CellGathering,
-                'status' => EventStatus::Upcoming,
-                'scheduled_at' => now()->addDays(4)->setTime(19, 0),
+                'type' => EventType::TendMaker,
+                'status' => EventStatus::Completed,
+                'scheduled_at' => now()->subDays(14)->setTime(19, 0),
                 'duration_minutes' => 90,
                 'location' => 'Basecamp History Maker — Ruang R&D Lt. 2',
-                'feedback_pin' => $pinAction->execute(),
-                'notes' => 'Upcoming Friday cell gathering with 90-minute synchronized run sheet.',
+                'feedback_pin' => '3910',
+                'pin_expires_at' => now()->subDays(13),
+                'notes' => 'Sharing praktis panggilan di dunia kampus dan profesional.',
                 'created_by' => $lungsUser->id,
             ]
         );
 
-        // Seed 90-Minute Run Sheet segments (15 + 20 + 40 + 15 = 90 minutes)
-        if ($completedEvent->rosters()->count() === 0) {
+        $event14 = Event::query()->updateOrCreate(
+            [
+                'cell_id' => $fcRndCell->id,
+                'title' => 'Meet FC 5: Vision Night & Table Fellowship',
+            ],
+            [
+                'type' => EventType::MeetFc5,
+                'status' => EventStatus::Completed,
+                'scheduled_at' => now()->subDays(7)->setTime(19, 0),
+                'duration_minutes' => 120,
+                'location' => 'Main Hall History Maker',
+                'feedback_pin' => '7504',
+                'pin_expires_at' => now()->subDays(6),
+                'notes' => 'Malam keakraban lintas komsel dan penyelarasan visi.',
+                'created_by' => $brainUser->id,
+            ]
+        );
+
+        // Active Today's Session with live 24-hour 4-Digit PIN (`2408`)
+        $activeEvent = Event::query()->updateOrCreate(
+            [
+                'cell_id' => $fcRndCell->id,
+                'title' => 'FC R&D Gathering #15: Architecture of Belonging',
+            ],
+            [
+                'type' => EventType::Regular,
+                'status' => EventStatus::Ongoing,
+                'scheduled_at' => now()->setTime(19, 0),
+                'duration_minutes' => 90,
+                'location' => 'Basecamp History Maker — Ruang R&D Lt. 2',
+                'feedback_pin' => '2408',
+                'pin_expires_at' => now()->addHours(24),
+                'notes' => '90-minute gathering focused on organ stewardship and welcoming new members.',
+                'created_by' => $itUser->id,
+            ]
+        );
+
+        // Ensure `pinAction` is referenced and functional
+        if (empty($activeEvent->feedback_pin)) {
+            $activeEvent->update(['feedback_pin' => $pinAction->execute()]);
+        }
+
+        // Seed 90-Minute Run Sheet segments on the active event
+        if ($activeEvent->rosters()->count() === 0) {
             $runSheetSegments = [
                 [
                     'user_id' => $hospitalityUser->id,
@@ -336,7 +385,7 @@ class DatabaseSeeder extends Seeder
                 [
                     'user_id' => $itUser->id,
                     'role_name' => 'Nervous System & Vascular — Care & Feedback PIN',
-                    'segment_title' => 'Birthday Blessing, Diaconia Update & Live Anonymous PIN (FCRND7)',
+                    'segment_title' => 'Birthday Blessing, Diaconia Update & Live Anonymous PIN (2408)',
                     'duration_minutes' => 15,
                     'sort_order' => 4,
                 ],
@@ -345,32 +394,91 @@ class DatabaseSeeder extends Seeder
             foreach ($runSheetSegments as $segment) {
                 EventRoster::query()->create(array_merge($segment, [
                     'cell_id' => $fcRndCell->id,
-                    'event_id' => $completedEvent->id,
+                    'event_id' => $activeEvent->id,
                 ]));
             }
         }
 
-        // Seed 100% Anonymous Feedbacks (zero user_id or IP stored)
-        if ($completedEvent->feedbacks()->count() === 0) {
-            Feedback::query()->create([
-                'cell_id' => $fcRndCell->id,
-                'event_id' => $completedEvent->id,
-                'rating' => 5,
-                'mood_score' => 5,
-                'highlights' => 'Alur 90 menit sangat tepat waktu dan diskusi kelompok terasa hangat tanpa menghakimi.',
-                'improvements' => 'Sediakan air hangat tambahan untuk sesi malam.',
-                'prayer_or_suggestion' => 'Doakan persiapan ujian akhir dan pekerjaan anggota baru minggu depan.',
-            ]);
+        // Seed 100% Anonymous Feedbacks across events (zero user_id or IP stored)
+        if (Feedback::query()->forCell($fcRndCell->id)->count() === 0) {
+            $sampleFeedbacks = [
+                [
+                    'event_id' => $event12->id,
+                    'rating' => 4,
+                    'category' => FeedbackCategory::Materi,
+                    'message' => 'Pembahasan latar belakang sejarah Elia sangat membuka wawasan, diskusi kelompok berjalan hidup.',
+                    'needs_pastoral_care' => false,
+                    'contact_name' => null,
+                    'contact_info' => null,
+                    'is_reviewed' => true,
+                ],
+                [
+                    'event_id' => $event12->id,
+                    'rating' => 5,
+                    'category' => FeedbackCategory::Hospitality,
+                    'message' => 'Suasana ruang R&D sangat nyaman dan sambutan tim Hands & Feet hangat sekali.',
+                    'needs_pastoral_care' => false,
+                    'contact_name' => null,
+                    'contact_info' => null,
+                    'is_reviewed' => true,
+                ],
+                [
+                    'event_id' => $event13->id,
+                    'rating' => 5,
+                    'category' => FeedbackCategory::Materi,
+                    'message' => 'Topik Tend Maker sangat relevan dengan pergumulan skripsi dan magang kami saat ini.',
+                    'needs_pastoral_care' => true,
+                    'contact_name' => 'Raka (Anggota Baru)',
+                    'contact_info' => 'WA: 0812-9988-7766',
+                    'is_reviewed' => true,
+                ],
+                [
+                    'event_id' => $event14->id,
+                    'rating' => 4,
+                    'category' => FeedbackCategory::AcaraGames,
+                    'message' => 'Games pembuka seru dan mencairkan suasana, namun transisi ke sesi sharing bisa sedikit dipercepat.',
+                    'needs_pastoral_care' => false,
+                    'contact_name' => null,
+                    'contact_info' => null,
+                    'is_reviewed' => true,
+                ],
+                [
+                    'event_id' => $activeEvent->id,
+                    'rating' => 5,
+                    'category' => FeedbackCategory::Materi,
+                    'message' => 'Alur 90 menit sangat tepat waktu dan pembagian 5 organ tubuh Kristus membuat setiap anggota merasa punya peran.',
+                    'needs_pastoral_care' => false,
+                    'contact_name' => null,
+                    'contact_info' => null,
+                    'is_reviewed' => false,
+                ],
+                [
+                    'event_id' => $activeEvent->id,
+                    'rating' => 5,
+                    'category' => FeedbackCategory::Hospitality,
+                    'message' => 'Terima kasih untuk sambutan hangat malam ini. Saya ingin didoakan untuk pemulihan kesehatan orang tua minggu ini.',
+                    'needs_pastoral_care' => true,
+                    'contact_name' => 'Tasya',
+                    'contact_info' => 'IG: @tasyaputri / WA: 0813-4455-6677',
+                    'is_reviewed' => false,
+                ],
+                [
+                    'event_id' => $activeEvent->id,
+                    'rating' => 4,
+                    'category' => FeedbackCategory::Lainnya,
+                    'message' => 'Usul agar lirik lagu worship juga dibagikan lewat grup WA sebelum acara dimulai.',
+                    'needs_pastoral_care' => false,
+                    'contact_name' => null,
+                    'contact_info' => null,
+                    'is_reviewed' => false,
+                ],
+            ];
 
-            Feedback::query()->create([
-                'cell_id' => $fcRndCell->id,
-                'event_id' => $completedEvent->id,
-                'rating' => 5,
-                'mood_score' => 4,
-                'highlights' => 'Icebreaker dari tim Hands & Feet langsung mencairkan suasana anggota baru.',
-                'improvements' => 'Volume gitar saat awal worship bisa sedikit lebih lembut.',
-                'prayer_or_suggestion' => 'Terima kasih untuk transparansi laporan Kas Rutin dan Diakonia.',
-            ]);
+            foreach ($sampleFeedbacks as $feedbackData) {
+                Feedback::query()->create(array_merge($feedbackData, [
+                    'cell_id' => $fcRndCell->id,
+                ]));
+            }
         }
 
         // Seed Attendance & Shepherd Radar Follow-Up
@@ -378,13 +486,13 @@ class DatabaseSeeder extends Seeder
             $status = ($idx === 8) ? 'absent' : 'present';
             EventAttendance::query()->updateOrCreate(
                 [
-                    'event_id' => $completedEvent->id,
+                    'event_id' => $activeEvent->id,
                     'user_id' => $member->id,
                 ],
                 [
                     'cell_id' => $fcRndCell->id,
                     'status' => $status,
-                    'checked_in_at' => $status === 'present' ? $completedEvent->scheduled_at : null,
+                    'checked_in_at' => $status === 'present' ? $activeEvent->scheduled_at : null,
                     'notes' => $status === 'absent' ? 'Out of town for family matter — scheduled for hospitality check-in' : null,
                 ]
             );
@@ -395,8 +503,8 @@ class DatabaseSeeder extends Seeder
                 'cell_id' => $fcRndCell->id,
                 'member_id' => $partUsers[3]->id,
                 'assigned_to' => $hospitalityUser->id,
-                'triggered_by_event_id' => $completedEvent->id,
-                'reason' => 'Missed Gathering #14 — Send warm coffee check-in & prayer note',
+                'triggered_by_event_id' => $activeEvent->id,
+                'reason' => 'Missed Gathering #15 — Send warm coffee check-in & prayer note',
                 'status' => 'in_progress',
                 'notes' => 'Hands & Feet team reached out via WhatsApp; scheduling mid-week catch-up.',
             ]);

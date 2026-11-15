@@ -8,9 +8,12 @@ declare(strict_types=1);
  *                 CRITICAL ARCHITECTURAL GUARDRAIL: Intentionally omits `user_id`,
  *                 `ip_address`, `user_agent`, and browser fingerprints to guarantee
  *                 100% technical anonymity for cell members submitting honest reflections.
- * Key Dependencies: `cells` table, `events` table.
+ *                 Optional pastoral care contact fields (`contact_name`, `contact_info`)
+ *                 are stored ONLY when a member explicitly checks `needs_pastoral_care`.
+ * Key Dependencies: `cells` table, `events` table, `App\Enums\FeedbackCategory`.
  */
 
+use App\Enums\FeedbackCategory;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -26,12 +29,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('cell_id')->constrained('cells')->cascadeOnDelete();
             $table->foreignId('event_id')->constrained('events')->cascadeOnDelete();
-            // Intentionally omit user_id, ip_address, and user_agent to guarantee 100% technical anonymity
-            $table->unsignedTinyInteger('rating'); // 1 to 5 stars
-            $table->unsignedTinyInteger('mood_score')->nullable(); // 1 to 5 emotional resonance score
-            $table->text('highlights')->nullable();
-            $table->text('improvements')->nullable();
-            $table->text('prayer_or_suggestion')->nullable();
+            // Intentionally omit user_id, ip_address, user_agent, and fingerprint to guarantee 100% technical anonymity
+            $table->unsignedTinyInteger('rating'); // 1 to 5 satisfaction score
+            $table->string('category', 48)->default(FeedbackCategory::Materi->value)->index();
+            $table->text('message');
+            $table->boolean('needs_pastoral_care')->default(false)->index();
+            $table->string('contact_name', 120)->nullable();
+            $table->string('contact_info', 160)->nullable();
+            $table->boolean('is_reviewed')->default(false)->index();
             $table->timestamps();
         });
     }

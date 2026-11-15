@@ -8,11 +8,14 @@ declare(strict_types=1);
  *                 CRITICAL ARCHITECTURAL GUARDRAIL: Never stores or accepts `user_id`,
  *                 `ip_address`, or browser fingerprint metadata so cell members can share
  *                 unfiltered feedback with complete psychological and technical safety.
- * Key Dependencies: `BelongsToCell`, `Event`.
+ *                 Optional pastoral contact info is stored ONLY inside `feedbacks` when
+ *                 `needs_pastoral_care` is explicitly checked by the member.
+ * Key Dependencies: `BelongsToCell`, `Event`, `FeedbackCategory`.
  */
 
 namespace App\Models;
 
+use App\Enums\FeedbackCategory;
 use App\Models\Concerns\BelongsToCell;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -38,10 +41,12 @@ class Feedback extends Model
         'cell_id',
         'event_id',
         'rating',
-        'mood_score',
-        'highlights',
-        'improvements',
-        'prayer_or_suggestion',
+        'category',
+        'message',
+        'needs_pastoral_care',
+        'contact_name',
+        'contact_info',
+        'is_reviewed',
     ];
 
     /**
@@ -55,7 +60,9 @@ class Feedback extends Model
             'cell_id' => 'integer',
             'event_id' => 'integer',
             'rating' => 'integer',
-            'mood_score' => 'integer',
+            'category' => FeedbackCategory::class,
+            'needs_pastoral_care' => 'boolean',
+            'is_reviewed' => 'boolean',
         ];
     }
 

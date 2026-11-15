@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Pest PHP Feature Tests for Phase 0 Architecture, RBAC, Multi-Tenancy & Showcase Routes.
+ * Purpose: Pest PHP Feature Tests for Phase 0 Architecture, RBAC, Multi-Tenancy & Showcase Removal.
  * Domain Context: Verifies Enum casting on Eloquent models, `cell_id` tenant scoping,
  *                 Spatie Role/Permission assignments, 100% technical anonymity on `feedbacks`,
- *                 `SoftDeletes` + `LogsActivity` on `transactions`, and `/` & `/design-system` routes.
+ *                 `SoftDeletes` + `LogsActivity` on `transactions`, and removal of `/design-system`.
  * Key Dependencies: `DatabaseSeeder`, `LedgerBalanceService`, `GenerateEventPinAction`.
  */
 
@@ -159,19 +159,18 @@ it('blocks non-whitelisted users from logging in', function (): void {
     $this->assertGuest();
 });
 
-it('renders the Phase 0 System Health & Codecademy Design Showcase at / and /design-system', function (): void {
+it('removes the Phase 0 showcase route (/design-system returns 404) and generates 4-digit numeric PINs', function (): void {
     $this->seed(DatabaseSeeder::class);
 
     $pinAction = app(GenerateEventPinAction::class);
-    expect(strlen($pinAction->execute()))->toBe(6);
-
-    $homeResponse = $this->get('/');
-    $homeResponse->assertOk();
+    $pin = $pinAction->execute();
+    expect($pin)->toHaveLength(4)
+        ->and($pin)->toMatch('/^\d{4}$/');
 
     $showcaseResponse = $this->get('/design-system');
-    $showcaseResponse->assertOk();
+    $showcaseResponse->assertNotFound();
 
     $event = Event::query()->firstOrFail();
-    expect($event->type)->toBe(EventType::CellGathering)
-        ->and($event->status)->toBeIn([EventStatus::Completed, EventStatus::Upcoming]);
+    expect($event->type)->toBeInstanceOf(EventType::class)
+        ->and($event->status)->toBeIn([EventStatus::Completed, EventStatus::Ongoing, EventStatus::Upcoming]);
 });

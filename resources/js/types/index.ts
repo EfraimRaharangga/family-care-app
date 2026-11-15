@@ -1,8 +1,9 @@
 /**
- * Purpose: Global TypeScript Domain Interfaces & Enum Mirrors for FC R&D
+ * Purpose: Global TypeScript Domain Interfaces & Enum Mirrors for FC R&D.
  * Domain Context: Strictly mirrors backend PHP 8.3+ Enums (`UserTier`, `VitalOrgan`,
- *                 `FundType`, `EventType`, `EventStatus`) and Eloquent Models (`Cell`, `User`,
- *                 `FinanceFund`, `Event`, `EventRoster`, `Feedback`) with zero `any` usage.
+ *                 `FundType`, `EventType`, `EventStatus`, `FeedbackCategory`) and Eloquent
+ *                 Models (`Cell`, `User`, `FinanceFund`, `Event`, `EventRoster`, `Feedback`)
+ *                 with zero `any` usage.
  * Key Dependencies: lucide-react
  */
 import { LucideIcon } from 'lucide-react';
@@ -22,9 +23,22 @@ export type VitalOrganValue =
 
 export type FundTypeValue = 'routine' | 'diaconia' | 'special_event';
 
-export type EventTypeValue = 'cell_gathering' | 'fellowship' | 'outreach' | 'retreat' | 'special';
+export type EventTypeValue = 'meet_fc_5' | 'cerita_nabi_nabi' | 'tend_maker' | 'regular';
 
 export type EventStatusValue = 'draft' | 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+
+export type FeedbackCategoryValue = 'materi' | 'hospitality' | 'acara_games' | 'lainnya';
+
+export interface EventTypeOption {
+    value: EventTypeValue;
+    label: string;
+}
+
+export interface FeedbackCategoryOption {
+    value: FeedbackCategoryValue;
+    label: string;
+    description: string;
+}
 
 // =========================================================================
 // CORE DOMAIN INTERFACES
@@ -114,20 +128,92 @@ export interface EventSummary {
     average_rating: number | null;
 }
 
-export interface SystemHealthMetrics {
-    php_version: string;
-    laravel_version: string;
-    database_driver: string;
-    database_connected: boolean;
-    database_name: string;
-    session_driver: string;
-    cache_driver: string;
-    queue_driver: string;
-    spatie_roles_count: number;
-    spatie_permissions_count: number;
-    activity_logs_count: number;
-    anonymous_feedbacks_count: number;
-    total_funds_balance_idr: number;
+// =========================================================================
+// PHASE 1: ANONYMOUS FEEDBACK & NERVOUS SYSTEM ANALYTICS INTERFACES
+// =========================================================================
+
+export interface VerifiedGuestEvent {
+    id: number;
+    cell_name: string;
+    title: string;
+    type: EventTypeValue;
+    type_label: string;
+    scheduled_at: string;
+    event_date_formatted: string;
+    feedback_pin: string;
+    pin_expires_at: string | null;
+}
+
+export interface ActivePinSession {
+    id: number;
+    title: string;
+    type: EventTypeValue;
+    type_label: string;
+    event_date_formatted: string;
+    feedback_pin: string;
+    pin_expires_at: string | null;
+    pin_expires_formatted: string | null;
+    pin_expires_human: string | null;
+    is_pin_active: boolean;
+    feedback_url: string;
+}
+
+export interface FeedbackDashboardKpis {
+    total_feedbacks: number;
+    average_rating: number;
+    unreviewed_count: number;
+    pastoral_care_count: number;
+    unreviewed_pastoral_count: number;
+}
+
+export interface FeedbackTrendPoint {
+    event_id: number;
+    short_label: string;
+    title: string;
+    type_label: string;
+    event_date: string;
+    average_rating: number;
+    feedbacks_count: number;
+}
+
+export interface FeedbackEventOption {
+    id: number;
+    title: string;
+    type: EventTypeValue;
+    type_label: string;
+    scheduled_at: string;
+    event_date_formatted: string;
+    feedback_pin: string;
+    pin_expires_at: string | null;
+    is_pin_active: boolean;
+    feedbacks_count: number;
+    average_rating: number | null;
+}
+
+export interface FeedbackItem {
+    id: number;
+    event_id: number;
+    event_title: string;
+    event_type_label: string;
+    event_date: string;
+    rating: number;
+    category: FeedbackCategoryValue;
+    category_label: string;
+    message: string;
+    needs_pastoral_care: boolean;
+    contact_name: string | null;
+    contact_info: string | null;
+    is_reviewed: boolean;
+    created_at_human: string;
+    created_at_formatted: string;
+}
+
+export interface FeedbackDashboardFilters {
+    event_id: string;
+    category: string;
+    review_status: string;
+    pastoral_only: boolean;
+    search: string;
 }
 
 // =========================================================================

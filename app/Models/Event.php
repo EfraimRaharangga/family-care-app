@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 /**
  * Purpose: Represents an FC R&D Cell Event or Gathering.
- * Domain Context: Stewarded by Lungs (Event Team) and Brain (Leader). Connects the
- *                 90-minute run sheet (`EventRoster`), anonymous PIN feedback (`Feedback`),
- *                 and member attendance (`EventAttendance`).
+ * Domain Context: Stewarded by Lungs (Event Team), Brain (Leader), and Nervous System (IT Team).
+ *                 Connects the 90-minute run sheet (`EventRoster`), daily 4-digit PIN anonymous
+ *                 feedback (`Feedback`), and member attendance (`EventAttendance`).
  * Key Dependencies: `BelongsToCell`, `EventType`, `EventStatus`.
  */
 
@@ -39,6 +39,7 @@ class Event extends Model
         'duration_minutes',
         'location',
         'feedback_pin',
+        'pin_expires_at',
         'notes',
         'created_by',
     ];
@@ -56,8 +57,19 @@ class Event extends Model
             'status' => EventStatus::class,
             'scheduled_at' => 'datetime',
             'duration_minutes' => 'integer',
+            'pin_expires_at' => 'datetime',
             'created_by' => 'integer',
         ];
+    }
+
+    /**
+     * Determine whether this event's 4-digit feedback PIN is currently active and unexpired.
+     */
+    public function isPinActive(): bool
+    {
+        return ! empty($this->feedback_pin)
+            && $this->pin_expires_at !== null
+            && $this->pin_expires_at->isFuture();
     }
 
     // =========================================================================

@@ -4,32 +4,31 @@ declare(strict_types=1);
 
 /**
  * Purpose: Classifies the type of FC R&D gathering or community event.
- * Domain Context: Used by the Lungs (Event Team) to structure the 90-minute run sheet
- *                 and by the Nervous System (IT Team) to segment attendance & feedback analytics.
- * Key Dependencies: Event model.
+ * Domain Context: Used by the Lungs (Event Team), Brain (Leader), and Nervous System (IT Team)
+ *                 to categorize sessions (`Meet FC 5`, `Cerita Nabi-Nabi`, `Tend Maker`, `Regular`)
+ *                 and segment anonymous feedback & attendance analytics.
+ * Key Dependencies: `App\Models\Event`.
  */
 
 namespace App\Enums;
 
 enum EventType: string
 {
-    case CellGathering = 'cell_gathering';
-    case Fellowship = 'fellowship';
-    case Outreach = 'outreach';
-    case Retreat = 'retreat';
-    case Special = 'special';
+    case MeetFc5 = 'meet_fc_5';
+    case CeritaNabiNabi = 'cerita_nabi_nabi';
+    case TendMaker = 'tend_maker';
+    case Regular = 'regular';
 
     /**
-     * Human-readable event category label.
+     * Human-readable FC R&D event type label.
      */
     public function label(): string
     {
         return match ($this) {
-            self::CellGathering => 'Weekly Cell Gathering',
-            self::Fellowship => 'Community Fellowship',
-            self::Outreach => 'Welcome & Outreach Night',
-            self::Retreat => 'Cell Retreat / Camp',
-            self::Special => 'Special Celebration',
+            self::MeetFc5 => 'Meet FC 5',
+            self::CeritaNabiNabi => 'Cerita Nabi-Nabi',
+            self::TendMaker => 'Tend Maker',
+            self::Regular => 'Regular',
         };
     }
 
@@ -39,9 +38,24 @@ enum EventType: string
     public function defaultDurationMinutes(): int
     {
         return match ($this) {
-            self::CellGathering, self::Fellowship, self::Outreach => 90,
-            self::Special => 120,
-            self::Retreat => 240,
+            self::Regular, self::CeritaNabiNabi, self::TendMaker => 90,
+            self::MeetFc5 => 120,
         };
+    }
+
+    /**
+     * Serializes all enum cases into structured options for Inertia/React select & filter controls.
+     *
+     * @return list<array{value: string, label: string}>
+     */
+    public static function options(): array
+    {
+        return array_map(
+            static fn (self $case): array => [
+                'value' => $case->value,
+                'label' => $case->label(),
+            ],
+            self::cases()
+        );
     }
 }
