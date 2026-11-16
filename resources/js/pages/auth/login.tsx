@@ -1,5 +1,5 @@
 /**
- * Purpose: FC R&D Member & Servant Login Page (Google OAuth Whitelist + Local Dev Fallback).
+ * Purpose: FC Member & Servant Login Page (Google OAuth Whitelist + Local Dev Fallback).
  * Domain Context: Primary authentication gate for Family Care — History Maker,
  *                 styled with the Calm Editorial Neutral design system. Includes quick
  *                 access to the public `/feedback` PIN portal and 1-click local demo fill.

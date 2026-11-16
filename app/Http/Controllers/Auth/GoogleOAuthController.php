@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Handles Google OAuth 2.0 authentication with strict FC R&D Email Whitelist enforcement.
+ * Purpose: Handles Google OAuth 2.0 authentication with strict FC Email Whitelist enforcement.
  * Domain Context: Only pre-registered cell members (`is_whitelisted = true` and `is_active = true`)
  *                 are allowed to log in via Google OAuth; unknown emails are rejected immediately.
  * Key Dependencies: `Laravel\Socialite\Facades\Socialite`, `App\Models\User`.
@@ -29,7 +29,7 @@ class GoogleOAuthController extends Controller
     }
 
     /**
-     * Handle the OAuth callback from Google and enforce the FC R&D email whitelist.
+     * Handle the OAuth callback from Google and enforce the FC email whitelist.
      */
     public function callback(): RedirectResponse
     {
@@ -48,7 +48,7 @@ class GoogleOAuthController extends Controller
 
         if ($user === null || ! $user->canAuthenticateViaWhitelist()) {
             return redirect()->route('login')->withErrors([
-                'email' => 'Access denied: Your Google email is not registered on the FC R&D member whitelist.',
+                'email' => 'Access denied: Your Google email is not registered on the FC member whitelist.',
             ]);
         }
 

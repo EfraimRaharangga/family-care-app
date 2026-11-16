@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Tracks the lifecycle state of an FC R&D event.
+ * Purpose: Tracks the lifecycle state of an FC event.
  * Domain Context: Controls whether anonymous feedback PIN submission and attendance check-in are open.
  * Key Dependencies: Event model, GenerateEventPinAction.
  */

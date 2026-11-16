@@ -1,5 +1,5 @@
 /**
- * Purpose: Calm Editorial Subject Header for FC R&D Domain Pages.
+ * Purpose: Calm Editorial Subject Header for FC Domain Pages.
  * Domain Context: Provides quiet, structured visual hierarchy with a 1px #E2E8F0 border,
  *                 rounded-lg geometry, and soft ambient shadow.
  * Key Dependencies: react, @/lib/utils

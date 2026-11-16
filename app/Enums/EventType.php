@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Classifies the type of FC R&D gathering or community event.
+ * Purpose: Classifies the type of FC gathering or community event.
  * Domain Context: Used by the Lungs (Event Team), Brain (Leader), and Nervous System (IT Team)
  *                 to categorize sessions (`Meet FC 5`, `Cerita Nabi-Nabi`, `Tend Maker`, `Regular`)
  *                 and segment anonymous feedback & attendance analytics.
@@ -20,7 +20,7 @@ enum EventType: string
     case Regular = 'regular';
 
     /**
-     * Human-readable FC R&D event type label.
+     * Human-readable FC event type label.
      */
     public function label(): string
     {
@@ -33,7 +33,7 @@ enum EventType: string
     }
 
     /**
-     * Default target duration in minutes (90 minutes standard for FC R&D run sheets).
+     * Default target duration in minutes (90 minutes standard for FC run sheets).
      */
     public function defaultDurationMinutes(): int
     {

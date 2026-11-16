@@ -1,10 +1,10 @@
 /**
  * Purpose: Shared navigation item definitions for desktop SideBar and mobile hamburger menu.
- * Domain Context: Centralizes Phase 1 Nervous System routes so desktop sidebar links and
- *                 mobile drawer navigation stay in sync without duplication.
+ * Domain Context: Centralizes authenticated navigation routes (Dashboard, Feedback Data, Event List)
+ *                 so desktop sidebar links and mobile drawer navigation stay in sync.
  * Key Dependencies: lucide-react
  */
-import { BarChart3, type LucideIcon, MessageSquareHeart } from 'lucide-react';
+import { BarChart3, CalendarDays, type LucideIcon, MessageSquareText } from 'lucide-react';
 
 export interface LayoutNavItem {
     id: string;
@@ -17,16 +17,23 @@ export interface LayoutNavItem {
 export const LAYOUT_NAV_ITEMS: LayoutNavItem[] = [
     {
         id: 'dashboard',
-        label: 'Dashboard & Analitik',
+        label: 'Dashboard',
         href: '/dashboard',
         icon: BarChart3,
         isActive: (url: string) => url.startsWith('/dashboard') || url.startsWith('/feedback-analytics'),
     },
     {
-        id: 'feedback',
-        label: 'Portal Feedback Anggota (/feedback)',
-        href: '/feedback',
-        icon: MessageSquareHeart,
-        isActive: (url: string) => url === '/feedback' || url.startsWith('/feedback?') || url.startsWith('/feedback/'),
+        id: 'feedback-data',
+        label: 'Feedback Data',
+        href: '/feedback-data',
+        icon: MessageSquareText,
+        isActive: (url: string) => url.startsWith('/feedback-data'),
+    },
+    {
+        id: 'events',
+        label: 'Event List',
+        href: '/events',
+        icon: CalendarDays,
+        isActive: (url: string) => url.startsWith('/events'),
     },
 ];

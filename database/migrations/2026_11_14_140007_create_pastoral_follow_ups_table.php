@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Purpose: Creates the `pastoral_follow_ups` table for member care and absentee outreach.
  * Domain Context: Coordinated between Brain (Leader) and Hands & Feet (Hospitality Team)
- *                 to ensure no FC R&D member falls through the cracks when absent or in need.
+ *                 to ensure no FC member falls through the cracks when absent or in need.
  * Key Dependencies: `cells` table, `users` table, `events` table.
  */
 

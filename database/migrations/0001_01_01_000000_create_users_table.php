@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Purpose: Creates the `users`, `password_reset_tokens`, and `sessions` tables.
- * Domain Context: Stores FC R&D members with Soft Multi-Tenancy (`cell_id`), Google OAuth
+ * Domain Context: Stores FC members with Soft Multi-Tenancy (`cell_id`), Google OAuth
  *                 Whitelist control (`is_whitelisted`), Journey of Belonging tier (`tier`),
  *                 and optional Vital Organ assignment (`vital_organ`).
  * Key Dependencies: `cells` table, `App\Enums\UserTier`, `App\Enums\VitalOrgan`.

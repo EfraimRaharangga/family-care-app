@@ -1,8 +1,8 @@
-# FC R&D (Family Care — History Maker) System Architecture & ERD
+# FC (Family Care — History Maker) System Architecture & ERD
 
 ## 1. Architectural Vision & Soft Multi-Tenancy
 
-**FC R&D** is engineered for **Family Care — History Maker** starting with a single cell group (`FC R&D`, ~15–30 members) while embedding **Soft Multi-Tenancy (`cell_id`)** on every core domain table from Day 1. This allows the platform to scale horizontally to dozens of cell groups under *History Maker* without schema rewrites.
+**FC** is engineered for **Family Care — History Maker** starting with a single cell group (`FC`, ~15–30 members) while embedding **Soft Multi-Tenancy (`cell_id`)** on every core domain table from Day 1. This allows the platform to scale horizontally to dozens of cell groups under *History Maker* without schema rewrites.
 
 ### Key Architectural Pillars
 1. **cPanel Shared Hosting Native:**

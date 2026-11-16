@@ -9,7 +9,7 @@
 
 ### 1.1 Vision & Scale
 - **Project Name:** Family Care (FC) Management System — *History Maker* Community.
-- **Current Scope:** Single-cell pilot for **FC R&D**, architected from day one to scale seamlessly into a multi-cell system across all *History Maker* cells.
+- **Current Scope:** Single-cell pilot for **FC**, architected from day one to scale seamlessly into a multi-cell system across all *History Maker* cells.
 - **Core Philosophy:** Build incrementally by phase (Phase 1: Anonymous Feedback → Phase 2: Transparent Finance & Audit → Phase 3: Event Planner & Archive → Phase 4: Shepherd Radar & CRM). Never over-engineer features that belong to future phases unless explicitly instructed.
 
 ### 1.2 Mandatory Domain Terminology

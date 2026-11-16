@@ -31,12 +31,12 @@ beforeEach(function (): void {
     CellScope::setCurrentCellId(null);
 });
 
-it('seeds FC R&D cell, whitelisted members across Part and 5 Vital Organs, and 3 virtual funds', function (): void {
+it('seeds FC cell, whitelisted members across Part and 5 Vital Organs, and 3 virtual funds', function (): void {
     $this->seed(DatabaseSeeder::class);
 
     $cell = Cell::query()->where('slug', 'fc-rnd')->first();
     expect($cell)->not->toBeNull()
-        ->and($cell->name)->toBe('FC R&D');
+        ->and($cell->name)->toBe('FC');
 
     $users = User::query()->forCell($cell->id)->get();
     expect($users)->toHaveCount(10);
@@ -61,7 +61,7 @@ it('seeds FC R&D cell, whitelisted members across Part and 5 Vital Organs, and 3
 
 it('enforces Soft Multi-Tenancy (cell_id) isolation via CellScope', function (): void {
     $cellA = Cell::query()->create([
-        'name' => 'FC R&D',
+        'name' => 'FC',
         'slug' => 'fc-rnd',
         'is_active' => true,
     ]);
@@ -140,7 +140,7 @@ it('enforces SoftDeletes and Spatie Activitylog audit trails on financial transa
 
 it('blocks non-whitelisted users from logging in', function (): void {
     $cell = Cell::query()->create([
-        'name' => 'FC R&D',
+        'name' => 'FC',
         'slug' => 'fc-rnd',
         'is_active' => true,
     ]);

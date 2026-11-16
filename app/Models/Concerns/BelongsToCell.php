@@ -41,7 +41,7 @@ trait BelongsToCell
     }
 
     /**
-     * Relationship to the owning Cell group (`FC R&D`).
+     * Relationship to the owning Cell group (`FC`).
      *
      * @return BelongsTo<Cell, $this>
      */

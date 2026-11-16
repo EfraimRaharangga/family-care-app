@@ -1,6 +1,6 @@
 /**
- * Purpose: Calm Editorial Neutral Top Navigation Bar for FC R&D.
- * Domain Context: Displays the active cell tenant (`FC R&D`), History Maker logo,
+ * Purpose: Calm Editorial Neutral Top Navigation Bar for FC.
+ * Domain Context: Displays the active cell tenant (`FC`), History Maker logo,
  *                 mobile hamburger menu trigger (`< md`), and authentication logout/login control
  *                 with an intentionally empty middle space.
  * Key Dependencies: @inertiajs/react, @/components/ui/button, @/components/ui/sheet

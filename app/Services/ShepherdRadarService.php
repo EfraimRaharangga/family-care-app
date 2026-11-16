@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Computes pastoral health metrics and absence alerts for FC R&D members.
+ * Purpose: Computes pastoral health metrics and absence alerts for FC members.
  * Domain Context: Powers the "Shepherd Radar" used by the Brain (Leader) and
  *                 Hands & Feet (Hospitality Team) to care for absent members proactively.
  * Key Dependencies: `App\Models\User`, `App\Models\EventAttendance`, `App\Models\PastoralFollowUp`.

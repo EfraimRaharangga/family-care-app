@@ -215,7 +215,7 @@ it('enforces Soft Multi-Tenancy (cell_id) isolation on dashboard event PIN regen
         'is_reviewed' => false,
     ]);
 
-    // Leader from FC R&D attempts to toggle feedback or regenerate PIN belonging to FC Harvest
+    // Leader from FC attempts to toggle feedback or regenerate PIN belonging to FC Harvest
     $fcRndLeader = User::query()->where('email', 'brain@fcrnd.local')->firstOrFail();
 
     $this->actingAs($fcRndLeader)
@@ -225,4 +225,46 @@ it('enforces Soft Multi-Tenancy (cell_id) isolation on dashboard event PIN regen
     $this->actingAs($fcRndLeader)
         ->post("/dashboard/events/{$otherCellEvent->id}/regenerate-pin")
         ->assertNotFound();
+});
+
+it('renders dedicated /feedback-data and /events pages and supports overview filtering for authenticated leaders', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    $itLeader = User::query()->where('email', 'it@fcrnd.local')->firstOrFail();
+
+    $this->actingAs($itLeader)
+        ->get('/dashboard?event_type=regular&period=30d')
+        ->assertOk();
+
+    $this->actingAs($itLeader)
+        ->get('/feedback-data?review_status=unreviewed')
+        ->assertOk();
+
+    $this->actingAs($itLeader)
+        ->get('/events?pin_status=active')
+        ->assertOk();
+
+    // Redirects back to /events when creating an event from the Event List page
+    $createFromEvents = $this->actingAs($itLeader)
+        ->from('/events')
+        ->post('/dashboard/events/quick', [
+            'title' => 'Event List Quick Session',
+            'type' => EventType::Regular->value,
+            'event_date' => now()->toDateString(),
+            'location' => 'Basecamp HM',
+        ]);
+
+    $createFromEvents->assertRedirect(route('events.index'));
+
+    // Manually expire an active PIN and verify it is no longer active
+    $activeEvent = Event::withoutGlobalScope(CellScope::class)
+        ->where('feedback_pin', '2408')
+        ->firstOrFail();
+
+    $this->actingAs($itLeader)
+        ->from('/events')
+        ->post("/dashboard/events/{$activeEvent->id}/expire-pin")
+        ->assertRedirect('/events');
+
+    expect($activeEvent->fresh()->isPinActive())->toBeFalse();
 });

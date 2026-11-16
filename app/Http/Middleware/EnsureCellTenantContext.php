@@ -35,7 +35,7 @@ class EnsureCellTenantContext
                 $request->session()->regenerateToken();
 
                 return redirect()->route('login')->withErrors([
-                    'email' => 'Your account is not on the active FC R&D whitelist.',
+                    'email' => 'Your account is not on the active FC whitelist.',
                 ]);
             }
 

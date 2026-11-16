@@ -1,6 +1,6 @@
 /**
  * Purpose: Primary Inertia.js v2 + React 19 Client Entrypoint
- * Domain Context: FC R&D (Family Care — History Maker) Web Application
+ * Domain Context: FC (Family Care — History Maker) Web Application
  * Key Dependencies: @inertiajs/react, laravel-vite-plugin, ziggy-js
  */
 import '../css/app.css';
@@ -15,7 +15,7 @@ declare global {
     const route: typeof routeFn;
 }
 
-const appName = import.meta.env.VITE_APP_NAME || 'FC R&D — Family Care';
+const appName = import.meta.env.VITE_APP_NAME || 'FC — Family Care';
 
 createInertiaApp({
     title: (title) => (title ? `${title} — ${appName}` : appName),

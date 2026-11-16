@@ -1,5 +1,5 @@
 /**
- * Purpose: Renders the biological organ badge/icon for the 5 Vital Organs of FC R&D.
+ * Purpose: Renders the biological organ badge/icon for the 5 Vital Organs of FC.
  * Domain Context: Styles all 5 `OrganIcon` badges uniformly in a clean neutral pill
  *                 (`bg-[#F8FAFC] border-[#E2E8F0] text-[#334155]`) differentiated by
  *                 their emoji and role title to prevent rainbow visual fatigue.

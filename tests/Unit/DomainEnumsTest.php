@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Pest PHP Unit Tests for FC R&D Native PHP 8.3+ Domain Enums.
+ * Purpose: Pest PHP Unit Tests for FC Native PHP 8.3+ Domain Enums.
  * Domain Context: Verifies `UserTier`, `VitalOrgan`, `FundType`, `EventType`, `FeedbackCategory`,
  *                 and `EventStatus` backing values, metadata helpers, and Spatie RBAC mappings.
  * Key Dependencies: `App\Enums\*`.
@@ -51,14 +51,14 @@ it('defines all 5 Vital Organs with canonical emojis, team names, and Spatie rol
     }
 });
 
-it('defines the 3 virtual fund types for FC R&D financial stewardship', function (): void {
+it('defines the 3 virtual fund types for FC financial stewardship', function (): void {
     expect(FundType::cases())->toHaveCount(3)
         ->and(FundType::Routine->label())->toBe('Kas Rutin')
         ->and(FundType::Diaconia->label())->toBe('Dana Diakonia & Kado')
         ->and(FundType::SpecialEvent->label())->toBe('Dana Acara Khusus');
 });
 
-it('defines the 4 FC R&D EventType cases and 4 FeedbackCategory cases for Phase 1', function (): void {
+it('defines the 4 FC EventType cases and 4 FeedbackCategory cases for Phase 1', function (): void {
     expect(EventType::cases())->toHaveCount(4)
         ->and(EventType::MeetFc5->label())->toBe('Meet FC 5')
         ->and(EventType::CeritaNabiNabi->label())->toBe('Cerita Nabi-Nabi')

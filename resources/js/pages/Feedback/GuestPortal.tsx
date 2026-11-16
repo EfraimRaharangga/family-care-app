@@ -131,7 +131,7 @@ export default function GuestPortal({
 
     return (
         <GuestFeedbackLayout>
-            <Head title="Feedback Anonim Anggota — FC R&D" />
+            <Head title="Feedback Anonim Anggota — FC" />
 
             {/* Top Identity Header */}
             <div className="mb-6 flex items-center justify-between">
@@ -141,7 +141,7 @@ export default function GuestPortal({
                     </div>
                     <div>
                         <h1 className="font-heading text-lg font-bold tracking-tight text-[#0F172A]">
-                            FC R&D · Suara Anggota
+                            FC · Suara Anggota
                         </h1>
                         <p className="font-mono text-xs text-[#64748B]">
                             Family Care — History Maker · Nervous System Channel
@@ -255,7 +255,7 @@ export default function GuestPortal({
                         </h2>
                         <p className="mx-auto mt-2 max-w-md text-sm text-[#475569]">
                             {flashSuccess ||
-                                'Setiap masukan dievaluasi oleh tim Nervous System & Leader agar komsel FC R&D semakin hangat dan bertumbuh.'}
+                                'Setiap masukan dievaluasi oleh tim Nervous System & Leader agar komsel FC semakin hangat dan bertumbuh.'}
                         </p>
 
                         <div className="mt-5 rounded-md border border-[#E2E8F0] bg-[#F8FAFC] p-3 text-left font-mono text-xs text-[#475569]">

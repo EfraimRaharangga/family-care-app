@@ -1,4 +1,4 @@
-# FC R&D — Family Care (History Maker)
+# FCFamily Care (History Maker)
 **Community Management, Anonymous Feedback, 90-Minute Run Sheet & Financial Stewardship Platform**
 
 Built with **Laravel** (PHP 8.3+), **React 19**, **Inertia.js v2**, **TypeScript**, **Tailwind CSS v4**, and **shadcn/ui**—styled after **Codecademy’s Gamut Design System** ([`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md)) and engineered for **cPanel Shared Hosting + MySQL** ([`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)).
@@ -7,7 +7,7 @@ Built with **Laravel** (PHP 8.3+), **React 19**, **Inertia.js v2**, **TypeScript
 
 ## 1. Project Vision: Journey of Belonging & The 5 Vital Organs
 
-**FC R&D** models a healthy cell community not as a passive audience led by one overburdened leader, but as a living organism where every member moves along the **Journey of Belonging** (`App\Enums\UserTier`):
+**FC** models a healthy cell community not as a passive audience led by one overburdened leader, but as a living organism where every member moves along the **Journey of Belonging** (`App\Enums\UserTier`):
 
 1. **`Part` (Cell Member):** Members experiencing authentic family care, participating in weekly 90-minute gatherings, and contributing honest anonymous feedback.
 2. **`Vital` (Core Servant):** Members actively stewarding one of the **5 Vital Organs** (`App\Enums\VitalOrgan`), mapped directly to Spatie RBAC roles & permissions:
@@ -37,7 +37,7 @@ npm install
 cp .env.example .env
 php artisan key:generate
 
-# 3. Run complete incremental migrations (Phases 0–4) & seed FC R&D initial data
+# 3. Run complete incremental migrations (Phases 0–4) & seed FC initial data
 php artisan migrate:fresh --seed
 
 # 4. Run TypeScript verification, Vite production build, and Pest PHP tests
@@ -66,7 +66,7 @@ composer run dev
 Ensure the following keys are configured in `.env` for local development and cPanel production:
 
 ```ini
-APP_NAME="FC R&D — Family Care"
+APP_NAME="FCFamily Care"
 APP_ENV=production
 APP_KEY=base64:...
 APP_DEBUG=false

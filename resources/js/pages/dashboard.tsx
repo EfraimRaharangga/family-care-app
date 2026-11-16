@@ -1,31 +1,39 @@
 /**
- * Purpose: Authenticated Leader & Nervous System Analytics Dashboard (`/dashboard`).
- * Domain Context: Stewarded by the Nervous System (IT Team) and Brain (Leader).
- *                 Delivers:
- *                 1. Quick Session & 24-Hour 4-Digit PIN Generator Modal ("Buat Sesi Acara & Generate PIN").
- *                 2. Active PIN Banner with 1-Click Copy for WhatsApp & Regenerate PIN action.
- *                 3. KPI Summary Cards, Recharts Satisfaction Trend Chart, Multi-Filter Bar,
- *                    and Feedback Triage Cards with 1-click `Belum Dibahas` <-> `Sudah Dievaluasi` toggle.
+ * Purpose: General Cell Overview Dashboard (`/dashboard`) for FC Leaders & Nervous System.
+ * Domain Context: Provides a cell-wide operational overview across Events (`Lungs`), Members (`Part` / `Vital`),
+ *                 Anonymous Feedback (`Nervous System`), and Virtual Funds (`Vascular System`), with:
+ *                 1. Reorganized Active 4-Digit PIN Banner (aligned `Regenerate PIN` & `Buka Form` controls).
+ *                 2. Quick Session & 24-Hour 4-Digit PIN Generator Modal.
+ *                 3. User-filterable General Overview KPIs & Recharts Analytics (by Event Type & Timeframe).
  * Key Dependencies: @inertiajs/react, recharts, @/layouts/AuthenticatedLayout, @/components/ui/*
  */
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import {
-    CalendarPlus,
+    CalendarDays,
     CheckCircle2,
     ExternalLink,
     Filter,
-    HeartHandshake,
     KeyRound,
     MessageSquareHeart,
     RefreshCw,
-    Search,
-    Sparkles,
     Star,
+    TrendingUp,
+    Users,
+    Wallet,
 } from 'lucide-react';
 import * as React from 'react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    ComposedChart,
+    Line,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
-import InputError from '@/components/input-error';
-import { EmptyState } from '@/components/shared/EmptyState';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -33,96 +41,47 @@ import {
     Card,
     CardBanner,
     CardContent,
-    CardFooter,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
+import { formatIdr } from '@/lib/formatters';
 import type {
     ActivePinSession,
+    CategoryBreakdownPoint,
     EventTypeOption,
-    EventTypeValue,
-    FeedbackCategoryOption,
-    FeedbackDashboardFilters,
-    FeedbackDashboardKpis,
-    FeedbackEventOption,
-    FeedbackItem,
     FeedbackTrendPoint,
+    OverviewDashboardFilters,
+    OverviewDashboardKpis,
 } from '@/types';
 
 export interface DashboardProps {
     cellName: string;
     activePinSession: ActivePinSession | null;
-    kpis: FeedbackDashboardKpis;
+    overviewKpis: OverviewDashboardKpis;
     trendSeries: FeedbackTrendPoint[];
-    events: FeedbackEventOption[];
+    categoryBreakdown: CategoryBreakdownPoint[];
     eventTypes: EventTypeOption[];
-    categories: FeedbackCategoryOption[];
-    feedbacks: FeedbackItem[];
-    filters: FeedbackDashboardFilters;
+    filters: OverviewDashboardFilters;
     flashStatus?: string | null;
 }
 
-type QuickEventForm = {
-    title: string;
-    type: EventTypeValue;
-    event_date: string;
-    location: string;
-};
-
 /**
- * Nervous System Analytics & Feedback Triage Dashboard adhering to `docs/DESIGN_SYSTEM.md`.
+ * General Overview Dashboard adhering strictly to `docs/DESIGN_SYSTEM.md`.
  */
 export default function Dashboard({
     cellName = 'Family Care',
     activePinSession,
-    kpis,
-    events = [],
+    overviewKpis,
+    trendSeries = [],
+    categoryBreakdown = [],
     eventTypes = [],
-    categories = [],
-    feedbacks = [],
     filters,
     flashStatus,
 }: DashboardProps): React.ReactElement {
-    // =========================================================================
-    // 1. QUICK SESSION & 4-DIGIT PIN MODAL STATE
-    // =========================================================================
-    const [isQuickModalOpen, setIsQuickModalOpen] = React.useState<boolean>(false);
-    const [togglingId, setTogglingId] = React.useState<number | null>(null);
     const [regeneratingPin, setRegeneratingPin] = React.useState<boolean>(false);
-
-    const todayIsoDate = React.useMemo(() => new Date().toISOString().slice(0, 10), []);
-
-    const quickEventForm = useForm<Required<QuickEventForm>>({
-        title: '',
-        type: eventTypes[0]?.value ?? 'regular',
-        event_date: todayIsoDate,
-        location: 'Basecamp History Maker',
-    });
-
-    const handleCreateQuickSession = (e: React.FormEvent<HTMLFormElement>): void => {
-        e.preventDefault();
-        quickEventForm.post(route('dashboard.events.quick-store'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                setIsQuickModalOpen(false);
-                quickEventForm.reset('title');
-            },
-        });
-    };
-
-    // =========================================================================
-    // 2. PIN REGENERATION HANDLERS
-    // =========================================================================
 
     const handleRegeneratePin = (eventId: number): void => {
         setRegeneratingPin(true);
@@ -136,32 +95,17 @@ export default function Dashboard({
         );
     };
 
-    // =========================================================================
-    // 3. FILTER & TRIAGE HANDLERS
-    // =========================================================================
-    const [searchInput, setSearchInput] = React.useState<string>(filters?.search ?? '');
-
-    const applyFilters = (overrides: Partial<FeedbackDashboardFilters>): void => {
-        const nextFilters: FeedbackDashboardFilters = {
-            event_id: overrides.event_id ?? filters?.event_id ?? 'all',
-            category: overrides.category ?? filters?.category ?? 'all',
-            review_status: overrides.review_status ?? filters?.review_status ?? 'all',
-            pastoral_only:
-                overrides.pastoral_only !== undefined
-                    ? overrides.pastoral_only
-                    : (filters?.pastoral_only ?? false),
-            search: overrides.search !== undefined ? overrides.search : searchInput,
+    const applyOverviewFilters = (overrides: Partial<OverviewDashboardFilters>): void => {
+        const next: OverviewDashboardFilters = {
+            event_type: overrides.event_type ?? filters?.event_type ?? 'all',
+            period: overrides.period ?? filters?.period ?? 'all',
         };
 
         router.get(
             route('dashboard'),
             {
-                event_id: nextFilters.event_id === 'all' ? undefined : nextFilters.event_id,
-                category: nextFilters.category === 'all' ? undefined : nextFilters.category,
-                review_status:
-                    nextFilters.review_status === 'all' ? undefined : nextFilters.review_status,
-                pastoral_only: nextFilters.pastoral_only ? '1' : undefined,
-                search: nextFilters.search.trim() !== '' ? nextFilters.search.trim() : undefined,
+                event_type: next.event_type === 'all' ? undefined : next.event_type,
+                period: next.period === 'all' ? undefined : next.period,
             },
             {
                 preserveState: true,
@@ -171,129 +115,19 @@ export default function Dashboard({
         );
     };
 
-    const handleToggleReview = (feedbackId: number): void => {
-        setTogglingId(feedbackId);
-        router.patch(
-            route('dashboard.feedbacks.toggle-review', feedbackId),
-            {},
-            {
-                preserveScroll: true,
-                onFinish: () => setTogglingId(null),
-            },
-        );
-    };
+    const hasActiveFilters = filters?.event_type !== 'all' || filters?.period !== 'all';
 
     return (
         <AuthenticatedLayout cellName={cellName}>
-            <Head title={`Dashboard & Analitik Feedback — ${cellName}`} />
+            <Head title={`Dashboard Pages`} />
 
             <div className="space-y-8">
                 {/* ========================================================================= */}
-                {/* 1. PAGE HEADER & QUICK SESSION GENERATOR MODAL                            */}
+                {/* 1. PAGE HEADER                                                            */}
                 {/* ========================================================================= */}
                 <PageHeader
-                    title="Buat Event Baru"
-                    description="Kelola event Family Care dengan halaman feedback untuk melihat tanggapan para anggota."
-                    actions={
-                        <Dialog open={isQuickModalOpen} onOpenChange={setIsQuickModalOpen}>
-                            <DialogTrigger asChild>
-                                <Button variant="default">
-                                    <CalendarPlus className="h-4 w-4" />
-                                    <span>Buat Sesi Acara</span>
-                                </Button>
-                            </DialogTrigger>
-
-                            <DialogContent className="border-[#E2E8F0] bg-white sm:max-w-lg">
-                                <DialogHeader>
-                                    <DialogTitle className="font-heading text-lg font-bold text-[#0F172A]">
-                                        Buat Sesi Acara & Generate PIN 4-Digit
-                                    </DialogTitle>
-                                    <DialogDescription className="text-xs text-[#64748B]">
-                                        Buat sesi komsel baru dan secara otomatis akan menerbitkan kode PIN 4 angka yang aktif selama 24 jam
-                                        untuk form feedback anonim anggota.
-                                    </DialogDescription>
-                                </DialogHeader>
-
-                                <form onSubmit={handleCreateQuickSession} className="space-y-4 pt-2">
-                                    <div className="space-y-1.5">
-                                        <Label htmlFor="quick-title">Judul Acara</Label>
-                                        <Input
-                                            id="quick-title"
-                                            type="text"
-                                            required
-                                            value={quickEventForm.data.title}
-                                            onChange={(e) => quickEventForm.setData('title', e.target.value)}
-                                            placeholder="Contoh: FC  Gathering #16: Heart of Stewardship"
-                                        />
-                                        <InputError message={quickEventForm.errors.title} />
-                                    </div>
-
-                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="quick-type">Jenis Acara</Label>
-                                            <select
-                                                id="quick-type"
-                                                value={quickEventForm.data.type}
-                                                onChange={(e) =>
-                                                    quickEventForm.setData('type', e.target.value as EventTypeValue)
-                                                }
-                                                className="flex h-9 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-1 text-sm text-[#1E293B] focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/15 focus:outline-none"
-                                            >
-                                                {eventTypes.map((opt) => (
-                                                    <option key={opt.value} value={opt.value}>
-                                                        {opt.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <InputError message={quickEventForm.errors.type} />
-                                        </div>
-
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="quick-date">Tanggal Acara</Label>
-                                            <Input
-                                                id="quick-date"
-                                                type="date"
-                                                required
-                                                value={quickEventForm.data.event_date}
-                                                onChange={(e) => quickEventForm.setData('event_date', e.target.value)}
-                                            />
-                                            <InputError message={quickEventForm.errors.event_date} />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-1.5">
-                                        <Label htmlFor="quick-location">Lokasi (Opsional)</Label>
-                                        <Input
-                                            id="quick-location"
-                                            type="text"
-                                            value={quickEventForm.data.location}
-                                            onChange={(e) => quickEventForm.setData('location', e.target.value)}
-                                            placeholder="Basecamp History Maker"
-                                        />
-                                        <InputError message={quickEventForm.errors.location} />
-                                    </div>
-
-                                    <DialogFooter className="pt-2">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => setIsQuickModalOpen(false)}
-                                        >
-                                            Batal
-                                        </Button>
-                                        <Button type="submit" disabled={quickEventForm.processing}>
-                                            <KeyRound className="h-4 w-4" />
-                                            <span>
-                                                {quickEventForm.processing
-                                                    ? 'Membuat PIN...'
-                                                    : 'Simpan & Generate PIN'}
-                                            </span>
-                                        </Button>
-                                    </DialogFooter>
-                                </form>
-                            </DialogContent>
-                        </Dialog>
-                    }
+                    title={`Halaman Dashboard`}
+                    description="Ringkasan operasional sel meliputi sesi acara, anggota aktif, metrik kepuasan feedback, dan saldo dana komsel."
                 />
 
                 {/* Flash Status Notification */}
@@ -307,286 +141,71 @@ export default function Dashboard({
                 )}
 
                 {/* ========================================================================= */}
-                {/* 2. ACTIVE 4-DIGIT PIN BANNER                                              */}
-                {/* ========================================================================= */}
-                {activePinSession && (
-                    <Card>
-                        <CardContent className="pt-5 pb-5">
-                            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
-                                <div className="space-y-2">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <Badge
-                                            variant={activePinSession.is_pin_active ? 'success' : 'warning'}
-                                        >
-                                            {activePinSession.is_pin_active ? 'PIN AKTIF' : 'PIN EXPIRED'}
-                                        </Badge>
-                                        <span className="font-mono text-xs text-[#64748B]">
-                                            {activePinSession.event_date_formatted}
-                                        </span>
-                                    </div>
-                                    <h2 className="font-heading text-xl font-bold text-[#0F172A]">
-                                        {activePinSession.title}
-                                    </h2>
-                                    <p className="text-xs text-[#64748B]">
-                                        Bagikan kode PIN 4-digit ini untuk mendapatkan feedback. Berlaku hingga{' '}
-                                        <span className="font-mono font-medium text-[#334155]">
-                                            {activePinSession.pin_expires_formatted ?? '-'}
-                                        </span>
-                                        .
-                                    </p>
-                                </div>
-
-                                <div className="flex flex-wrap items-center gap-3">
-                                    {/* 4-Digit Monospace PIN Display Box */}
-                                    <div className="flex items-center gap-3 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5">
-                                        <div>
-                                            <div className="font-mono text-[10px] font-medium text-[#64748B] uppercase">
-                                                4-DIGIT PIN
-                                            </div>
-                                            <div className="font-mono text-2xl font-bold tracking-[0.25em] text-[#0F172A]">
-                                                {activePinSession.feedback_pin}
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                    {/* Regenerate 24h PIN */}
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        disabled={regeneratingPin}
-                                        onClick={() => handleRegeneratePin(activePinSession.id)}
-                                    >
-                                        <RefreshCw
-                                            className={`h-4 w-4 ${regeneratingPin ? 'animate-spin' : ''}`}
-                                        />
-                                        <span>Regenerate PIN</span>
-                                    </Button>
-
-                                    {/* Preview Guest Form with PIN */}
-                                    <Link
-                                        href={route('feedback.index', {
-                                            pin: activePinSession.feedback_pin,
-                                        })}
-                                    >
-                                        <Button type="button" variant="secondary">
-                                            <ExternalLink className="h-4 w-4" />
-                                            <span>Buka Form</span>
-                                        </Button>
-                                    </Link>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* ========================================================================= */}
-                {/* 3. KPI SUMMARY CARDS                                                      */}
-                {/* ========================================================================= */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <Card>
-                        <CardBanner>
-                            <span>TOTAL MASUKAN</span>
-                            <MessageSquareHeart className="h-3.5 w-3.5 text-[#64748B]" />
-                        </CardBanner>
-                        <CardContent className="pt-4 pb-4">
-                            <div className="font-mono text-3xl font-bold text-[#0F172A]">
-                                {kpis.total_feedbacks}
-                            </div>
-                            <p className="mt-1 text-xs text-[#64748B]">
-                                Total feedback seluruh acara FC
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardBanner>
-                            <span>RATA-RATA KEPUASAN</span>
-                            <Star className="h-3.5 w-3.5 text-[#4F46E5]" />
-                        </CardBanner>
-                        <CardContent className="pt-4 pb-4">
-                            <div className="flex items-baseline gap-1.5">
-                                <span className="font-mono text-3xl font-bold text-[#0F172A]">
-                                    {kpis.average_rating.toFixed(2)}
-                                </span>
-                                <span className="font-mono text-xs text-[#64748B]">/ 5.00</span>
-                            </div>
-                            <p className="mt-1 text-xs text-[#64748B]">
-                                Skor kepuasan anggota FC
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardBanner>
-                            <span>BELUM DIBAHAS</span>
-                            <Sparkles className="h-3.5 w-3.5 text-[#B45309]" />
-                        </CardBanner>
-                        <CardContent className="pt-4 pb-4">
-                            <div className="font-mono text-3xl font-bold text-[#0F172A]">
-                                {kpis.unreviewed_count}
-                            </div>
-                            <p className="mt-1 text-xs text-[#64748B]">
-                                Menunggu evaluasi pengurus
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardBanner>
-                            <span>BUTUH PASTORAL CARE</span>
-                            <HeartHandshake className="h-3.5 w-3.5 text-[#4F46E5]" />
-                        </CardBanner>
-                        <CardContent className="pt-4 pb-4">
-                            <div className="flex items-baseline gap-2">
-                                <span className="font-mono text-3xl font-bold text-[#0F172A]">
-                                    {kpis.pastoral_care_count}
-                                </span>
-                                {kpis.unreviewed_pastoral_count > 0 && (
-                                    <Badge variant="warning">
-                                        {kpis.unreviewed_pastoral_count} Perlu Didoakan
-                                    </Badge>
-                                )}
-                            </div>
-                            <p className="mt-1 text-xs text-[#64748B]">
-                                Total permohonan doa
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* ========================================================================= */}
-                {/* 5. FILTERING, SEARCH & PASTORAL CARE QUICK TOGGLE                         */}
+                {/* 2. OVERVIEW FILTER BAR                                                    */}
                 {/* ========================================================================= */}
                 <Card>
                     <CardBanner>
                         <span className="inline-flex items-center gap-1.5">
                             <Filter className="h-3.5 w-3.5 text-[#64748B]" />
-                            <span>FILTER & TRIAGE FEEDBACK ANGGOTA</span>
+                            <span>FILTER METRIK & GRAFIK OVERVIEW</span>
                         </span>
-                        <span>MENAMPILKAN {feedbacks.length} KARTU FEEDBACK</span>
+                        <span>
+                            {hasActiveFilters ? 'FILTER AKTIF' : 'MENAMPILKAN SEMUA DATA'}
+                        </span>
                     </CardBanner>
-
                     <CardContent className="pt-4 pb-4">
-                        <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
-                            {/* Filter by Event Session */}
-                            <div className="md:col-span-3">
-                                <Label htmlFor="filter-event" className="mb-1 block font-mono text-[11px] text-[#64748B]">
-                                    SESI ACARA
-                                </Label>
-                                <select
-                                    id="filter-event"
-                                    value={filters?.event_id ?? 'all'}
-                                    onChange={(e) => applyFilters({ event_id: e.target.value })}
-                                    className="flex h-9 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-1 text-xs text-[#1E293B] focus:border-[#4F46E5] focus:outline-none"
-                                >
-                                    <option value="all">Semua Sesi Acara ({events.length})</option>
-                                    {events.map((ev) => (
-                                        <option key={ev.id} value={String(ev.id)}>
-                                            {ev.event_date_formatted} — {ev.title} ({ev.feedbacks_count})
-                                        </option>
-                                    ))}
-                                </select>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                            <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2 md:max-w-xl">
+                                <div>
+                                    <Label
+                                        htmlFor="overview-event-type"
+                                        className="mb-1 block font-mono text-[11px] text-[#64748B]"
+                                    >
+                                        JENIS ACARA
+                                    </Label>
+                                    <select
+                                        id="overview-event-type"
+                                        value={filters?.event_type ?? 'all'}
+                                        onChange={(e) => applyOverviewFilters({ event_type: e.target.value })}
+                                        className="flex h-9 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-1 text-xs text-[#1E293B] focus:border-[#4F46E5] focus:outline-none"
+                                    >
+                                        <option value="all">Semua Jenis Acara</option>
+                                        {eventTypes.map((opt) => (
+                                            <option key={opt.value} value={opt.value}>
+                                                {opt.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <Label
+                                        htmlFor="overview-period"
+                                        className="mb-1 block font-mono text-[11px] text-[#64748B]"
+                                    >
+                                        RENTANG WAKTU
+                                    </Label>
+                                    <select
+                                        id="overview-period"
+                                        value={filters?.period ?? 'all'}
+                                        onChange={(e) => applyOverviewFilters({ period: e.target.value })}
+                                        className="flex h-9 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-1 text-xs text-[#1E293B] focus:border-[#4F46E5] focus:outline-none"
+                                    >
+                                        <option value="all">Semua Waktu</option>
+                                        <option value="30d">30 Hari Terakhir</option>
+                                        <option value="7d">7 Hari Terakhir</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            {/* Filter by Category */}
-                            <div className="md:col-span-3">
-                                <Label htmlFor="filter-category" className="mb-1 block font-mono text-[11px] text-[#64748B]">
-                                    KATEGORI FEEDBACK
-                                </Label>
-                                <select
-                                    id="filter-category"
-                                    value={filters?.category ?? 'all'}
-                                    onChange={(e) => applyFilters({ category: e.target.value })}
-                                    className="flex h-9 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-1 text-xs text-[#1E293B] focus:border-[#4F46E5] focus:outline-none"
-                                >
-                                    <option value="all">Semua Kategori</option>
-                                    {categories.map((cat) => (
-                                        <option key={cat.value} value={cat.value}>
-                                            {cat.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Filter by Review Status */}
-                            <div className="md:col-span-2">
-                                <Label htmlFor="filter-status" className="mb-1 block font-mono text-[11px] text-[#64748B]">
-                                    STATUS EVALUASI
-                                </Label>
-                                <select
-                                    id="filter-status"
-                                    value={filters?.review_status ?? 'all'}
-                                    onChange={(e) => applyFilters({ review_status: e.target.value })}
-                                    className="flex h-9 w-full rounded-md border border-[#E2E8F0] bg-white px-3 py-1 text-xs text-[#1E293B] focus:border-[#4F46E5] focus:outline-none"
-                                >
-                                    <option value="all">Semua Status</option>
-                                    <option value="unreviewed">Belum Dibahas</option>
-                                    <option value="reviewed">Sudah Dievaluasi</option>
-                                </select>
-                            </div>
-
-                            {/* Search Keyword */}
-                            <div className="md:col-span-4">
-                                <Label htmlFor="filter-search" className="mb-1 block font-mono text-[11px] text-[#64748B]">
-                                    CARI ISI PESAN / NAMA KONTAK
-                                </Label>
-                                <form
-                                    onSubmit={(e) => {
-                                        e.preventDefault();
-                                        applyFilters({ search: searchInput });
-                                    }}
-                                    className="flex gap-2"
-                                >
-                                    <Input
-                                        id="filter-search"
-                                        type="text"
-                                        value={searchInput}
-                                        onChange={(e) => setSearchInput(e.target.value)}
-                                        placeholder="Cari kata kunci..."
-                                        className="h-9 text-xs"
-                                    />
-                                    <Button type="submit" variant="outline" size="sm" className="h-9">
-                                        <Search className="h-3.5 w-3.5" />
-                                    </Button>
-                                </form>
-                            </div>
-                        </div>
-
-                        {/* Quick Toggle Pill for Pastoral Care & Reset */}
-                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-dashed border-[#E2E8F0] pt-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        applyFilters({ pastoral_only: !filters?.pastoral_only })
-                                    }
-                                    className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-mono text-xs font-medium transition-colors ${
-                                        filters?.pastoral_only
-                                            ? 'border-[#4F46E5] bg-[#EEF2FF] text-[#4338CA]'
-                                            : 'border-[#E2E8F0] bg-[#F8FAFC] text-[#475569] hover:border-[#CBD5E1]'
-                                    }`}
-                                >
-                                    <HeartHandshake className="h-3.5 w-3.5" />
-                                    <span>Hanya yang Butuh Pastoral Care ({kpis.pastoral_care_count})</span>
-                                </button>
-                            </div>
-
-                            {(filters?.event_id !== 'all' ||
-                                filters?.category !== 'all' ||
-                                filters?.review_status !== 'all' ||
-                                filters?.pastoral_only ||
-                                (filters?.search ?? '') !== '') && (
+                            {hasActiveFilters && (
                                 <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => {
-                                        setSearchInput('');
-                                        router.get(route('dashboard'));
-                                    }}
+                                    onClick={() => router.get(route('dashboard'))}
                                 >
-                                    Reset Semua Filter
+                                    Reset Filter
                                 </Button>
                             )}
                         </div>
@@ -594,107 +213,237 @@ export default function Dashboard({
                 </Card>
 
                 {/* ========================================================================= */}
-                {/* 6. FEEDBACK TRIAGE CARDS & 1-CLICK REVIEW STATUS TOGGLE                   */}
+                {/* 4. GENERAL CELL KPI SUMMARY CARDS                                         */}
                 {/* ========================================================================= */}
-                {feedbacks.length === 0 ? (
-                    <EmptyState
-                        title="Tidak Ada Feedback yang Sesuai Filter"
-                        description="Coba ubah filter sesi acara atau bagikan kode PIN 4-digit ke grup WhatsApp agar anggota dapat mengirimkan masukan anonim."
-                    />
-                ) : (
-                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                        {feedbacks.map((item) => (
-                            <Card
-                                key={item.id}
-                                className={
-                                    item.needs_pastoral_care
-                                        ? 'border-[#C7D2FE] ring-1 ring-[#EEF2FF]'
-                                        : ''
-                                }
-                            >
-                                <CardBanner>
-                                    <span className="truncate">
-                                        {item.event_date} · {item.event_title}
-                                    </span>
-                                    <span className="shrink-0">{item.created_at_human}</span>
-                                </CardBanner>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <Card>
+                        <CardBanner>
+                            <span>SESI ACARA</span>
+                            <CalendarDays className="h-3.5 w-3.5 text-[#4F46E5]" />
+                        </CardBanner>
+                        <CardContent className="pt-4 pb-4">
+                            <div className="flex items-baseline gap-2">
+                                <span className="font-mono text-3xl font-bold text-[#0F172A]">
+                                    {overviewKpis.total_events}
+                                </span>
+                                <Badge variant="success">
+                                    {overviewKpis.active_pin_events} PIN Aktif
+                                </Badge>
+                            </div>
+                            <p className="mt-1 text-xs text-[#64748B]">
+                                Total event sesuai filter aktif
+                            </p>
+                        </CardContent>
+                    </Card>
 
-                                <CardContent className="space-y-3.5 pt-4 pb-4">
-                                    {/* Badges Row: Rating, Category, Pastoral Care Flag, Review Status */}
-                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                        <div className="flex flex-wrap items-center gap-1.5">
-                                            <span className="inline-flex items-center gap-1 rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 font-mono text-xs font-semibold text-[#0F172A]">
-                                                <Star className="h-3.5 w-3.5 fill-[#1E293B] text-[#1E293B]" />
-                                                <span>{item.rating}/5</span>
-                                            </span>
-                                            <Badge variant="outline">{item.category_label}</Badge>
-                                            {item.needs_pastoral_care && (
-                                                <Badge variant="indigo">
-                                                    <HeartHandshake className="h-3 w-3" />
-                                                    <span>Butuh Pastoral Care</span>
-                                                </Badge>
-                                            )}
-                                        </div>
+                    <Card>
+                        <CardBanner>
+                            <span>ANGGOTA & PELAYAN</span>
+                            <Users className="h-3.5 w-3.5 text-[#64748B]" />
+                        </CardBanner>
+                        <CardContent className="pt-4 pb-4">
+                            <div className="font-mono text-3xl font-bold text-[#0F172A]">
+                                {overviewKpis.total_members}
+                            </div>
+                            <p className="mt-1 font-mono text-xs text-[#64748B]">
+                                {overviewKpis.vital_members} Vital · {overviewKpis.part_members} Part
+                            </p>
+                        </CardContent>
+                    </Card>
 
-                                        <Badge
-                                            variant={item.is_reviewed ? 'success' : 'warning'}
+                    <Card>
+                        <CardBanner>
+                            <span>KEPUASAN & FEEDBACK</span>
+                            <Star className="h-3.5 w-3.5 text-[#4F46E5]" />
+                        </CardBanner>
+                        <CardContent className="pt-4 pb-4">
+                            <div className="flex items-baseline gap-1.5">
+                                <span className="font-mono text-3xl font-bold text-[#0F172A]">
+                                    {overviewKpis.average_rating.toFixed(2)}
+                                </span>
+                                <span className="font-mono text-xs text-[#64748B]">
+                                    / 5.00 ({overviewKpis.total_feedbacks} masukan)
+                                </span>
+                            </div>
+                            <p className="mt-1 text-xs text-[#64748B]">
+                                {overviewKpis.unreviewed_count} belum dibahas · {overviewKpis.pastoral_care_count} pastoral
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardBanner>
+                            <span>TOTAL DANA SEL</span>
+                            <Wallet className="h-3.5 w-3.5 text-[#047857]" />
+                        </CardBanner>
+                        <CardContent className="pt-4 pb-4">
+                            <div className="font-mono text-2xl font-bold text-[#0F172A]">
+                                {formatIdr(overviewKpis.total_funds_balance)}
+                            </div>
+                            <p className="mt-1 text-xs text-[#64748B]">
+                                Akumulasi kas rutin, diakonia & acara
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* ========================================================================= */}
+                {/* 5. FILTERABLE RECHARTS ANALYTICS                                          */}
+                {/* ========================================================================= */}
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    {/* Chart 1: Session Rating & Feedback Volume Trend */}
+                    <Card>
+                        <CardBanner>
+                            <span className="inline-flex items-center gap-1.5">
+                                <TrendingUp className="h-3.5 w-3.5 text-[#4F46E5]" />
+                                <span>TREN KEPUASAN & PARTISIPASI SESI</span>
+                            </span>
+                            <span>8 SESI TERAKHIR</span>
+                        </CardBanner>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-base">Rating & Jumlah Masukan per Sesi</CardTitle>
+                            <CardDescription className="text-xs">
+                                Batang Slate (#1E293B) menunjukkan rata-rata rating; garis Indigo (#4F46E5) menunjukkan jumlah respons.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-2">
+                            {trendSeries.length === 0 ? (
+                                <div className="py-12 text-center font-mono text-xs text-[#64748B]">
+                                    Belum ada data sesi untuk filter yang dipilih.
+                                </div>
+                            ) : (
+                                <div className="h-64 w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <ComposedChart
+                                            data={trendSeries}
+                                            margin={{ top: 10, right: 16, left: -12, bottom: 0 }}
                                         >
-                                            {item.is_reviewed ? 'Sudah Dievaluasi' : 'Belum Dibahas'}
-                                        </Badge>
-                                    </div>
+                                            <CartesianGrid
+                                                strokeDasharray="3 3"
+                                                stroke="#E2E8F0"
+                                                vertical={false}
+                                            />
+                                            <XAxis
+                                                dataKey="event_date"
+                                                tick={{ fill: '#64748B', fontSize: 11 }}
+                                                axisLine={{ stroke: '#E2E8F0' }}
+                                                tickLine={false}
+                                            />
+                                            <YAxis
+                                                domain={[0, 5]}
+                                                ticks={[0, 1, 2, 3, 4, 5]}
+                                                tick={{ fill: '#64748B', fontSize: 11 }}
+                                                axisLine={false}
+                                                tickLine={false}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    backgroundColor: '#FFFFFF',
+                                                    borderColor: '#E2E8F0',
+                                                    borderRadius: '8px',
+                                                    fontSize: '12px',
+                                                    color: '#1E293B',
+                                                }}
+                                                formatter={(value, name) => {
+                                                    if (name === 'average_rating') {
+                                                        return [`${value ?? 0} / 5.0`, 'Rata-Rata Rating'];
+                                                    }
+                                                    return [`${value ?? 0} respons`, 'Jumlah Feedback'];
+                                                }}
+                                                labelFormatter={(_label, payload) => {
+                                                    const item = payload?.[0]?.payload as
+                                                        | FeedbackTrendPoint
+                                                        | undefined;
+                                                    return item ? `${item.title} (${item.type_label})` : '';
+                                                }}
+                                            />
+                                            <Bar
+                                                dataKey="average_rating"
+                                                fill="#1E293B"
+                                                radius={[6, 6, 0, 0]}
+                                                barSize={34}
+                                            />
+                                            <Line
+                                                type="monotone"
+                                                dataKey="feedbacks_count"
+                                                stroke="#4F46E5"
+                                                strokeWidth={2}
+                                                dot={{ r: 4, fill: '#4F46E5' }}
+                                            />
+                                        </ComposedChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
 
-                                    {/* Feedback Message */}
-                                    <p className="text-sm leading-relaxed text-[#1E293B]">
-                                        {item.message}
-                                    </p>
-
-                                    {/* Conditional Pastoral Care Contact Details Box */}
-                                    {item.needs_pastoral_care && (
-                                        <div className="rounded-md border border-[#C7D2FE] bg-[#EEF2FF]/70 p-3">
-                                            <div className="flex items-center gap-1.5 font-mono text-[11px] font-semibold text-[#4338CA] uppercase">
-                                                <HeartHandshake className="h-3.5 w-3.5" />
-                                                <span>Permohonan Doa / Sapaan Personal</span>
-                                            </div>
-                                            <div className="mt-1.5 grid grid-cols-1 gap-1 text-xs text-[#1E293B] sm:grid-cols-2">
-                                                <div>
-                                                    <span className="text-[#64748B]">Nama Panggilan: </span>
-                                                    <span className="font-semibold">
-                                                        {item.contact_name || 'Tidak disebutkan (Anonim)'}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <span className="text-[#64748B]">Kontak WA/IG: </span>
-                                                    <span className="font-mono font-semibold">
-                                                        {item.contact_info || 'Tidak disertakan'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </CardContent>
-
-                                <CardFooter className="justify-between">
-                                    <span>100% ANONYMOUS ENTRY #{item.id}</span>
-
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        variant={item.is_reviewed ? 'outline' : 'default'}
-                                        disabled={togglingId === item.id}
-                                        onClick={() => handleToggleReview(item.id)}
-                                    >
-                                        <CheckCircle2 className="h-3.5 w-3.5" />
-                                        <span>
-                                            {item.is_reviewed
-                                                ? 'Tandai Belum Dibahas'
-                                                : 'Tandai Sudah Dievaluasi'}
-                                        </span>
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-                        ))}
-                    </div>
-                )}
+                    {/* Chart 2: Feedback Category Breakdown */}
+                    <Card>
+                        <CardBanner>
+                            <span className="inline-flex items-center gap-1.5">
+                                <MessageSquareHeart className="h-3.5 w-3.5 text-[#64748B]" />
+                                <span>DISTRIBUSI KATEGORI MASUKAN</span>
+                            </span>
+                            <span>{overviewKpis.total_feedbacks} TOTAL</span>
+                        </CardBanner>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-base">Volume Feedback per Kategori</CardTitle>
+                            <CardDescription className="text-xs">
+                                Sebaran masukan anggota berdasarkan kategori Materi, Hospitality, Acara &amp; Games, dan Lainnya.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-2">
+                            {categoryBreakdown.every((c) => c.count === 0) ? (
+                                <div className="py-12 text-center font-mono text-xs text-[#64748B]">
+                                    Belum ada feedback pada rentang filter ini.
+                                </div>
+                            ) : (
+                                <div className="h-64 w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart
+                                            data={categoryBreakdown}
+                                            margin={{ top: 10, right: 16, left: -12, bottom: 0 }}
+                                        >
+                                            <CartesianGrid
+                                                strokeDasharray="3 3"
+                                                stroke="#E2E8F0"
+                                                vertical={false}
+                                            />
+                                            <XAxis
+                                                dataKey="label"
+                                                tick={{ fill: '#64748B', fontSize: 11 }}
+                                                axisLine={{ stroke: '#E2E8F0' }}
+                                                tickLine={false}
+                                            />
+                                            <YAxis
+                                                allowDecimals={false}
+                                                tick={{ fill: '#64748B', fontSize: 11 }}
+                                                axisLine={false}
+                                                tickLine={false}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    backgroundColor: '#FFFFFF',
+                                                    borderColor: '#E2E8F0',
+                                                    borderRadius: '8px',
+                                                    fontSize: '12px',
+                                                    color: '#1E293B',
+                                                }}
+                                                formatter={(value) => [`${value ?? 0} masukan`, 'Jumlah']}
+                                            />
+                                            <Bar
+                                                dataKey="count"
+                                                fill="#4F46E5"
+                                                radius={[6, 6, 0, 0]}
+                                                barSize={40}
+                                            />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </AuthenticatedLayout>
     );

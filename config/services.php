@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Purpose: Third-Party Service Credentials Configuration (including Google OAuth Socialite).
- * Domain Context: Powers Google OAuth Whitelist login for FC R&D members.
+ * Domain Context: Powers Google OAuth Whitelist login for FC members.
  * Key Dependencies: `laravel/socialite`.
  */
 

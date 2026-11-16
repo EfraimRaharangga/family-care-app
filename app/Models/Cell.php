@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Represents a History Maker Cell Group tenant (starting with `FC R&D`).
+ * Purpose: Represents a History Maker Cell Group tenant (starting with `FC`).
  * Domain Context: Root entity of the Soft Multi-Tenancy architecture. All members,
  *                 events, feedbacks, virtual funds, and pastoral records belong to a Cell.
  * Key Dependencies: User, Event, Feedback, FinanceFund, Transaction, PastoralFollowUp.

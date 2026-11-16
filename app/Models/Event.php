@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Represents an FC R&D Cell Event or Gathering.
+ * Purpose: Represents an FC Cell Event or Gathering.
  * Domain Context: Stewarded by Lungs (Event Team), Brain (Leader), and Nervous System (IT Team).
  *                 Connects the 90-minute run sheet (`EventRoster`), daily 4-digit PIN anonymous
  *                 feedback (`Feedback`), and member attendance (`EventAttendance`).

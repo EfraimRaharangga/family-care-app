@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Defines the "Journey of Belonging" membership tiers for FC R&D members.
+ * Purpose: Defines the "Journey of Belonging" membership tiers for FC members.
  * Domain Context: Every cell member is categorized as either "Part" (general member)
  *                 or "Vital" (core servant assigned to one of the 5 Vital Organs).
  * Key Dependencies: Synced directly with Spatie Permission base roles.

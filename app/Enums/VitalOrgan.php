@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Purpose: Represents the 5 biological organ metaphors branching off the "Vital" tier.
- * Domain Context: FC R&D distributes cell leadership and operations across 5 specialized
+ * Domain Context: FC distributes cell leadership and operations across 5 specialized
  *                 organ teams rather than concentrating burden on a single person.
  * Key Dependencies: Used by User model casts, Spatie RBAC seeding, and OrganIcon UI components.
  */
@@ -62,7 +62,7 @@ enum VitalOrgan: string
     }
 
     /**
-     * Core operational mandate for the organ within FC R&D.
+     * Core operational mandate for the organ within FC.
      */
     public function description(): string
     {

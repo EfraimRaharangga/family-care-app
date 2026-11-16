@@ -1,5 +1,5 @@
 /**
- * Purpose: Calm Editorial Neutral Desktop Sidebar Navigation & Shared Drawer Parts for FC R&D.
+ * Purpose: Calm Editorial Neutral Desktop Sidebar Navigation & Shared Drawer Parts for FC.
  * Domain Context: Displays Phase 1 Nervous System navigation links on desktop (`md+`)
  *                 and houses the compact combined User Tier + Name profile element at the bottom.
  *                 Exports `SidebarNavLinks` and `CompactUserProfile` for reuse in the mobile hamburger menu.

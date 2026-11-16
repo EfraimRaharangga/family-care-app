@@ -1,5 +1,5 @@
 /**
- * Purpose: Primary Authenticated Page Wrapper for FC R&D Servants & Members.
+ * Purpose: Primary Authenticated Page Wrapper for FC Servants & Members.
  * Domain Context: Wraps authenticated routes with the Calm Editorial Neutral
  *                 alabaster/slate canvas (`#F8FAFC`), TopBar header (with mobile hamburger menu),
  *                 and desktop SideBar navigation.
@@ -16,9 +16,9 @@ export interface AuthenticatedLayoutProps {
 }
 
 /**
- * Editorial layout wrapper for authenticated FC R&D pages.
+ * Editorial layout wrapper for authenticated FC pages.
  */
-export default function AuthenticatedLayout({ children, cellName = 'FC R&D' }: AuthenticatedLayoutProps): React.ReactElement {
+export default function AuthenticatedLayout({ children, cellName = 'FC' }: AuthenticatedLayoutProps): React.ReactElement {
     return (
         <div className="min-h-screen bg-[#F8FAFC] text-[#1E293B]">
             <TopBar cellName={cellName} />

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Purpose: Eloquent Global Scope enforcing Soft Multi-Tenancy (`cell_id`) across queries.
  * Domain Context: Automatically scopes tenant-bound queries to the authenticated user's
- *                 `cell_id` (or explicit tenant context) so FC R&D data remains isolated
+ *                 `cell_id` (or explicit tenant context) so FC data remains isolated
  *                 as History Maker scales to multiple cell groups.
  * Key Dependencies: `Illuminate\Database\Eloquent\Scope`, `Illuminate\Support\Facades\Auth`.
  */

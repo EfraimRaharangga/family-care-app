@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Primary HTTP Web Routes for FC R&D (Family Care — History Maker).
+ * Purpose: Primary HTTP Web Routes for FC (Family Care — History Maker).
  * Domain Context:
  *   1. Root `/` redirects unauthenticated visitors to `/login` and authenticated leaders to `/dashboard`.
  *   2. Public `/feedback` exposes the mobile-first 4-digit PIN gate and 100% anonymous feedback engine.
@@ -48,12 +48,17 @@ Route::prefix('feedback')->name('feedback.')->group(function (): void {
 Route::middleware(['auth', EnsureCellTenantContext::class])->group(function (): void {
     Route::get('/dashboard', [FeedbackDashboardController::class, 'index'])->name('dashboard');
     Route::get('/feedback-analytics', [FeedbackDashboardController::class, 'index'])->name('feedback.analytics');
+    Route::get('/feedback-data', [FeedbackDashboardController::class, 'feedbackData'])->name('feedback.data');
+    Route::get('/events', [FeedbackDashboardController::class, 'events'])->name('events.index');
 
     Route::post('/dashboard/events/quick', [FeedbackDashboardController::class, 'storeQuickEvent'])
         ->name('dashboard.events.quick-store');
 
     Route::post('/dashboard/events/{event}/regenerate-pin', [FeedbackDashboardController::class, 'regeneratePin'])
         ->name('dashboard.events.regenerate-pin');
+
+    Route::post('/dashboard/events/{event}/expire-pin', [FeedbackDashboardController::class, 'expirePin'])
+        ->name('dashboard.events.expire-pin');
 
     Route::patch('/dashboard/feedbacks/{feedback}/toggle-review', [FeedbackDashboardController::class, 'toggleReview'])
         ->name('dashboard.feedbacks.toggle-review');

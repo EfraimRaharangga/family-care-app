@@ -62,7 +62,7 @@ class GuestFeedbackController extends Controller
                 } else {
                     $verifiedEventPayload = [
                         'id' => $event->id,
-                        'cell_name' => $event->cell?->name ?? 'FC R&D',
+                        'cell_name' => $event->cell?->name ?? 'FC',
                         'title' => $event->title,
                         'type' => $event->type->value,
                         'type_label' => $event->type->label(),

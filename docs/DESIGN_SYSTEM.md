@@ -1,4 +1,4 @@
-# FC R&D (Family Care — History Maker) Design System
+# FC (Family Care — History Maker) Design System
 **Aesthetic Direction:** Calm Editorial Neutral (Low-Glare Slate & Alabaster Surfaces + Muted Indigo Accents)  
 **Theme Mode:** Restrained Light Mode (`#F8FAFC` Soft Slate Canvas + `#FFFFFF` Cards + `1px solid #E2E8F0` Borders + `#1E293B` Charcoal Ink)
 
@@ -6,7 +6,7 @@
 
 ## 1. Visual Philosophy & Ergonomic Principles
 
-The FC R&D UI balances structured catalog clarity with **long-session visual comfort**. Instead of high-saturation rainbow cards or harsh `2px` black borders that cause eye strain, the interface obeys four strict ergonomic rules:
+The FC UI balances structured catalog clarity with **long-session visual comfort**. Instead of high-saturation rainbow cards or harsh `2px` black borders that cause eye strain, the interface obeys four strict ergonomic rules:
 
 1. **90–8–2 Color Restraint:**
    - **90% Quiet Neutral Surfaces:** Low-glare alabaster/slate canvas (`#F8FAFC`), pure white card surfaces (`#FFFFFF`), and subtle `1px solid #E2E8F0` structural dividers.

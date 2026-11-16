@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Represents an FC R&D Cell Member or Vital Core Servant.
+ * Purpose: Represents an FC Cell Member or Vital Core Servant.
  * Domain Context: Models the "Journey of Belonging" (`UserTier`: Part vs. Vital) and the
  *                 5 "Vital Organs" (`VitalOrgan`: Brain, Lungs, Hands & Feet, Vascular System,
  *                 Nervous System) alongside Google OAuth Whitelist access (`is_whitelisted`).
@@ -84,7 +84,7 @@ class User extends Authenticatable
     // =========================================================================
 
     /**
-     * Owning Cell Group (`FC R&D`).
+     * Owning Cell Group (`FC`).
      *
      * @return BelongsTo<Cell, $this>
      */

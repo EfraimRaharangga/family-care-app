@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: FormRequest validating local authentication and enforcing FC R&D Whitelist access.
+ * Purpose: FormRequest validating local authentication and enforcing FC Whitelist access.
  * Domain Context: Even when authenticating via local email/password fallback, only users
  *                 with `is_whitelisted = true` and `is_active = true` are permitted to sign in.
  * Key Dependencies: `App\Models\User`, `Illuminate\Support\Facades\Auth`.
@@ -65,7 +65,7 @@ class LoginRequest extends FormRequest
             Auth::logout();
 
             throw ValidationException::withMessages([
-                'email' => 'Your account is not on the active FC R&D member whitelist.',
+                'email' => 'Your account is not on the active FC member whitelist.',
             ]);
         }
 

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Eloquent Factory for generating FC R&D `User` instances in tests and seeders.
+ * Purpose: Eloquent Factory for generating FC `User` instances in tests and seeders.
  * Domain Context: Supports Journey of Belonging states (`part()`, `vital(VitalOrgan)`)
  *                 and Soft Multi-Tenancy (`cell_id`).
  * Key Dependencies: `App\Models\User`, `App\Enums\UserTier`, `App\Enums\VitalOrgan`.

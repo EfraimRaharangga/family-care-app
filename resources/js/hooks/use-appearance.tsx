@@ -1,6 +1,6 @@
 /**
  * Purpose: Theme Appearance Hook (Locked to Codecademy Editorial Light Mode)
- * Domain Context: FC R&D Design System mandates high-contrast warm cream (#FFF0E5) and deep navy (#10162F) surfaces
+ * Domain Context: FC Design System mandates high-contrast warm cream (#FFF0E5) and deep navy (#10162F) surfaces
  * Key Dependencies: react
  */
 import { useEffect, useState } from 'react';

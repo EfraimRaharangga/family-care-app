@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'FC R&D — Family Care') }}</title>
+        <title inertia>{{ config('app.name', 'FC — Family Care') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=jetbrains-mono:500,600|plus-jakarta-sans:400,500,600,700|space-grotesk:600,700" rel="stylesheet" />

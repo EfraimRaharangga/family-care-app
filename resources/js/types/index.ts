@@ -1,5 +1,5 @@
 /**
- * Purpose: Global TypeScript Domain Interfaces & Enum Mirrors for FC R&D.
+ * Purpose: Global TypeScript Domain Interfaces & Enum Mirrors for FC.
  * Domain Context: Strictly mirrors backend PHP 8.3+ Enums (`UserTier`, `VitalOrgan`,
  *                 `FundType`, `EventType`, `EventStatus`, `FeedbackCategory`) and Eloquent
  *                 Models (`Cell`, `User`, `FinanceFund`, `Event`, `EventRoster`, `Feedback`)
@@ -213,6 +213,56 @@ export interface FeedbackDashboardFilters {
     category: string;
     review_status: string;
     pastoral_only: boolean;
+    search: string;
+}
+
+export interface OverviewDashboardKpis {
+    total_events: number;
+    active_pin_events: number;
+    total_members: number;
+    vital_members: number;
+    part_members: number;
+    total_feedbacks: number;
+    average_rating: number;
+    unreviewed_count: number;
+    pastoral_care_count: number;
+    total_funds_balance: number;
+}
+
+export interface CategoryBreakdownPoint {
+    category: FeedbackCategoryValue;
+    label: string;
+    count: number;
+    avg_rating: number;
+}
+
+export interface OverviewDashboardFilters {
+    event_type: string;
+    period: string;
+}
+
+export interface EventListItem {
+    id: number;
+    title: string;
+    type: EventTypeValue;
+    type_label: string;
+    status: EventStatusValue;
+    status_label: string;
+    scheduled_at: string;
+    event_date_formatted: string;
+    duration_minutes: number;
+    location: string | null;
+    feedback_pin: string;
+    pin_expires_formatted: string | null;
+    is_pin_active: boolean;
+    feedbacks_count: number;
+    average_rating: number | null;
+    feedback_url: string;
+}
+
+export interface EventListFilters {
+    type: string;
+    pin_status: string;
     search: string;
 }
 

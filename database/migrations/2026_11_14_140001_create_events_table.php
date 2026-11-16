@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Creates the `events` table for FC R&D cell gatherings and special events.
+ * Purpose: Creates the `events` table for FC cell gatherings and special events.
  * Domain Context: Managed primarily by the Lungs (Event Team), Brain (Leader), and Nervous System (IT Team).
  *                 Includes a 4-digit `feedback_pin` and `pin_expires_at` (24-hour window) to unlock
  *                 100% anonymous post-event feedback.
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('type', 48)->default(EventType::Regular->value)->index();
             $table->string('status', 32)->default(EventStatus::Upcoming->value)->index();
             $table->dateTime('scheduled_at')->index();
-            // Standard FC R&D gathering rhythm is 90 minutes, stewarded by the Lungs (Event Team)
+            // Standard FC gathering rhythm is 90 minutes, stewarded by the Lungs (Event Team)
             $table->unsignedSmallInteger('duration_minutes')->default(90);
             $table->string('location')->nullable();
             // Daily 4-digit numeric PIN shared live for 100% anonymous feedback access

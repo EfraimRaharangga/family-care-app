@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Seeds the complete Phase 0 & Phase 1 dataset for `FC R&D` (Family Care — History Maker).
- * Domain Context: Initializes the `FC R&D` cell tenant, Spatie RBAC roles & permissions
+ * Purpose: Seeds the complete Phase 0 & Phase 1 dataset for `FC` (Family Care — History Maker).
+ * Domain Context: Initializes the `FC` cell tenant, Spatie RBAC roles & permissions
  *                 (`Part`, `Vital`, and all 5 `VitalOrgan` sub-roles), initial whitelisted
  *                 members, the 3 virtual funds (`Kas Rutin`, `Dana Diakonia & Kado`,
  *                 `Dana Acara Khusus`), 90-minute run sheet rosters, multi-session events
@@ -78,12 +78,12 @@ class DatabaseSeeder extends Seeder
         }
 
         // =========================================================================
-        // 2. PRIMARY CELL TENANT: FC R&D (FAMILY CARE — HISTORY MAKER)
+        // 2. PRIMARY CELL TENANT: FC (FAMILY CARE — HISTORY MAKER)
         // =========================================================================
         $fcRndCell = Cell::query()->updateOrCreate(
             ['slug' => 'fc-rnd'],
             [
-                'name' => 'FC R&D',
+                'name' => 'FC',
                 'description' => 'Family Care — History Maker (R&D Cell Community). A warm, high-trust community growing through the Journey of Belonging.',
                 'is_active' => true,
                 'settings' => [
@@ -229,7 +229,7 @@ class DatabaseSeeder extends Seeder
                 'direction' => 'in',
                 'amount' => 1850000.00,
                 'category' => 'Weekly Offering',
-                'description' => 'Saldo Awal & Kolekte Bulanan Kas Rutin FC R&D',
+                'description' => 'Saldo Awal & Kolekte Bulanan Kas Rutin FC',
                 'transaction_date' => now()->subDays(10)->toDateString(),
                 'reference_note' => 'BATCH-RND-001',
             ]);
@@ -241,7 +241,7 @@ class DatabaseSeeder extends Seeder
                 'direction' => 'out',
                 'amount' => 325000.00,
                 'category' => 'Fellowship Consumption',
-                'description' => 'Konsumsi Fellowship & Air Mineral FC R&D',
+                'description' => 'Konsumsi Fellowship & Air Mineral FC',
                 'transaction_date' => now()->subDays(7)->toDateString(),
                 'reference_note' => 'EXP-RND-002',
             ]);
@@ -265,7 +265,7 @@ class DatabaseSeeder extends Seeder
                 'direction' => 'in',
                 'amount' => 2750000.00,
                 'category' => 'Special Event Fund',
-                'description' => 'Tabungan Retreat & Malam Keakraban History Maker FC R&D',
+                'description' => 'Tabungan Retreat & Malam Keakraban History Maker FC',
                 'transaction_date' => now()->subDays(5)->toDateString(),
                 'reference_note' => 'SPC-RND-001',
             ]);
@@ -338,7 +338,7 @@ class DatabaseSeeder extends Seeder
         $activeEvent = Event::query()->updateOrCreate(
             [
                 'cell_id' => $fcRndCell->id,
-                'title' => 'FC R&D Gathering #15: Architecture of Belonging',
+                'title' => 'FC Gathering #15: Architecture of Belonging',
             ],
             [
                 'type' => EventType::Regular,

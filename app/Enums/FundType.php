@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Purpose: Categorizes virtual fund buckets managed by the Vascular System (Treasurer).
- * Domain Context: FC R&D separates cell cash into virtual envelopes (Kas Rutin,
+ * Domain Context: FC separates cell cash into virtual envelopes (Kas Rutin,
  *                 Dana Diakonia & Kado, Dana Acara Khusus) without needing multiple bank accounts.
  * Key Dependencies: FinanceFund model, LedgerBalanceService, DatabaseSeeder.
  */
@@ -18,7 +18,7 @@ enum FundType: string
     case SpecialEvent = 'special_event';
 
     /**
-     * Canonical Indonesian fund name used by FC R&D.
+     * Canonical Indonesian fund name used by FC.
      */
     public function label(): string
     {

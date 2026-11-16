@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Purpose: Categorizes 100% Anonymous Member Feedback in FC R&D.
+ * Purpose: Categorizes 100% Anonymous Member Feedback in FC.
  * Domain Context: Used by the Nervous System (IT Team) and Brain (Leader) to route
  *                 anonymous feedback into actionable evaluation buckets (`Materi`,
  *                 `Hospitality / Suasana`, `Acara & Games`, `Lainnya`).

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Purpose: Creates the `cells` tenant table for Soft Multi-Tenancy across History Maker.
- * Domain Context: Phase 0 starts with a single cell (`FC R&D`), while every core table
+ * Domain Context: Phase 0 starts with a single cell (`FC`), while every core table
  *                 scopes records via `cell_id` to allow effortless horizontal scaling.
  * Key Dependencies: Referenced by `users`, `events`, `feedbacks`, `finance_funds`, etc.
  */
