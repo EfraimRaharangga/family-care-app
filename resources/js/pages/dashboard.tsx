@@ -1,5 +1,5 @@
 /**
- * Purpose: Phase 1 Authenticated Leader & Nervous System Analytics Dashboard (`/dashboard`).
+ * Purpose: Authenticated Leader & Nervous System Analytics Dashboard (`/dashboard`).
  * Domain Context: Stewarded by the Nervous System (IT Team) and Brain (Leader).
  *                 Delivers:
  *                 1. Quick Session & 24-Hour 4-Digit PIN Generator Modal ("Buat Sesi Acara & Generate PIN").
@@ -11,10 +11,7 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import {
     CalendarPlus,
-    Check,
     CheckCircle2,
-    Clock,
-    Copy,
     ExternalLink,
     Filter,
     HeartHandshake,
@@ -24,19 +21,8 @@ import {
     Search,
     Sparkles,
     Star,
-    TrendingUp,
 } from 'lucide-react';
 import * as React from 'react';
-import {
-    Bar,
-    CartesianGrid,
-    ComposedChart,
-    Line,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
-} from 'recharts';
 
 import InputError from '@/components/input-error';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -47,10 +33,7 @@ import {
     Card,
     CardBanner,
     CardContent,
-    CardDescription,
     CardFooter,
-    CardHeader,
-    CardTitle,
 } from '@/components/ui/card';
 import {
     Dialog,
@@ -100,10 +83,9 @@ type QuickEventForm = {
  * Nervous System Analytics & Feedback Triage Dashboard adhering to `docs/DESIGN_SYSTEM.md`.
  */
 export default function Dashboard({
-    cellName = 'FC R&D',
+    cellName = 'Family Care',
     activePinSession,
     kpis,
-    trendSeries = [],
     events = [],
     eventTypes = [],
     categories = [],
@@ -115,7 +97,6 @@ export default function Dashboard({
     // 1. QUICK SESSION & 4-DIGIT PIN MODAL STATE
     // =========================================================================
     const [isQuickModalOpen, setIsQuickModalOpen] = React.useState<boolean>(false);
-    const [copiedWhatsApp, setCopiedWhatsApp] = React.useState<boolean>(false);
     const [togglingId, setTogglingId] = React.useState<number | null>(null);
     const [regeneratingPin, setRegeneratingPin] = React.useState<boolean>(false);
 
@@ -125,7 +106,7 @@ export default function Dashboard({
         title: '',
         type: eventTypes[0]?.value ?? 'regular',
         event_date: todayIsoDate,
-        location: 'Basecamp History Maker — Ruang R&D Lt. 2',
+        location: 'Basecamp History Maker',
     });
 
     const handleCreateQuickSession = (e: React.FormEvent<HTMLFormElement>): void => {
@@ -140,35 +121,8 @@ export default function Dashboard({
     };
 
     // =========================================================================
-    // 2. 1-CLICK WHATSAPP COPY & PIN REGENERATION HANDLERS
+    // 2. PIN REGENERATION HANDLERS
     // =========================================================================
-    const handleCopyWhatsAppMessage = async (): Promise<void> => {
-        if (!activePinSession) {
-            return;
-        }
-
-        const origin = typeof window !== 'undefined' ? window.location.origin : '';
-        const directUrl = `${origin}/feedback?pin=${activePinSession.feedback_pin}`;
-        const whatsappText = [
-            `🙌 *Suara Anggota — ${cellName} (History Maker)*`,
-            `Sesi: *${activePinSession.title}* (${activePinSession.type_label})`,
-            ``,
-            `Yuk bagikan kesan, evaluasi, atau pokok doa secara *100% Anonim* (tanpa login & tanpa jejak IP):`,
-            `🔗 Link Langsung: ${directUrl}`,
-            `🔑 Kode PIN 4-Digit: *${activePinSession.feedback_pin}*`,
-            `⏳ Berlaku 24 jam hingga ${activePinSession.pin_expires_formatted ?? 'besok'}. Terima kasih!`,
-        ].join('\n');
-
-        try {
-            await navigator.clipboard.writeText(whatsappText);
-            setCopiedWhatsApp(true);
-            window.setTimeout(() => setCopiedWhatsApp(false), 2500);
-        } catch {
-            // Fallback for older webviews
-            setCopiedWhatsApp(true);
-            window.setTimeout(() => setCopiedWhatsApp(false), 2500);
-        }
-    };
 
     const handleRegeneratePin = (eventId: number): void => {
         setRegeneratingPin(true);
@@ -238,15 +192,14 @@ export default function Dashboard({
                 {/* 1. PAGE HEADER & QUICK SESSION GENERATOR MODAL                            */}
                 {/* ========================================================================= */}
                 <PageHeader
-                    categoryTag="PHASE 1 · NERVOUS SYSTEM ANALYTICS"
-                    title="Evaluasi Anonim & Radar Suara Anggota"
-                    description="Kelola PIN 4-digit harian, pantau tren kepuasan sesi komsel, dan tindak lanjuti permohonan Pastoral Care dengan privasi penuh."
+                    title="Buat Event Baru"
+                    description="Kelola event Family Care dengan halaman feedback untuk melihat tanggapan para anggota."
                     actions={
                         <Dialog open={isQuickModalOpen} onOpenChange={setIsQuickModalOpen}>
                             <DialogTrigger asChild>
                                 <Button variant="default">
                                     <CalendarPlus className="h-4 w-4" />
-                                    <span>Buat Sesi Acara & Generate PIN</span>
+                                    <span>Buat Sesi Acara</span>
                                 </Button>
                             </DialogTrigger>
 
@@ -256,7 +209,7 @@ export default function Dashboard({
                                         Buat Sesi Acara & Generate PIN 4-Digit
                                     </DialogTitle>
                                     <DialogDescription className="text-xs text-[#64748B]">
-                                        Buat sesi komsel baru dan terbitkan kode PIN 4 angka yang aktif selama 24 jam
+                                        Buat sesi komsel baru dan secara otomatis akan menerbitkan kode PIN 4 angka yang aktif selama 24 jam
                                         untuk form feedback anonim anggota.
                                     </DialogDescription>
                                 </DialogHeader>
@@ -270,7 +223,7 @@ export default function Dashboard({
                                             required
                                             value={quickEventForm.data.title}
                                             onChange={(e) => quickEventForm.setData('title', e.target.value)}
-                                            placeholder="Contoh: FC R&D Gathering #16: Heart of Stewardship"
+                                            placeholder="Contoh: FC  Gathering #16: Heart of Stewardship"
                                         />
                                         <InputError message={quickEventForm.errors.title} />
                                     </div>
@@ -315,7 +268,7 @@ export default function Dashboard({
                                             type="text"
                                             value={quickEventForm.data.location}
                                             onChange={(e) => quickEventForm.setData('location', e.target.value)}
-                                            placeholder="Basecamp History Maker — Ruang R&D Lt. 2"
+                                            placeholder="Basecamp History Maker"
                                         />
                                         <InputError message={quickEventForm.errors.location} />
                                     </div>
@@ -333,7 +286,7 @@ export default function Dashboard({
                                             <span>
                                                 {quickEventForm.processing
                                                     ? 'Membuat PIN...'
-                                                    : 'Simpan & Generate PIN 24 Jam'}
+                                                    : 'Simpan & Generate PIN'}
                                             </span>
                                         </Button>
                                     </DialogFooter>
@@ -354,34 +307,18 @@ export default function Dashboard({
                 )}
 
                 {/* ========================================================================= */}
-                {/* 2. ACTIVE 4-DIGIT PIN BANNER & 1-CLICK WHATSAPP COPY                      */}
+                {/* 2. ACTIVE 4-DIGIT PIN BANNER                                              */}
                 {/* ========================================================================= */}
                 {activePinSession && (
                     <Card>
-                        <CardBanner>
-                            <span className="inline-flex items-center gap-1.5">
-                                <KeyRound className="h-3.5 w-3.5 text-[#4F46E5]" />
-                                <span>ACTIVE DAILY FEEDBACK PIN GATE (24-HOUR WINDOW)</span>
-                            </span>
-                            <span className="inline-flex items-center gap-1.5">
-                                <Clock className="h-3.5 w-3.5 text-[#64748B]" />
-                                <span>
-                                    {activePinSession.is_pin_active
-                                        ? `Aktif · Berakhir ${activePinSession.pin_expires_human ?? 'dalam 24 jam'}`
-                                        : 'PIN Kadaluarsa — Silakan Regenerate PIN'}
-                                </span>
-                            </span>
-                        </CardBanner>
-
                         <CardContent className="pt-5 pb-5">
                             <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
                                 <div className="space-y-2">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <Badge variant="indigo">{activePinSession.type_label}</Badge>
                                         <Badge
                                             variant={activePinSession.is_pin_active ? 'success' : 'warning'}
                                         >
-                                            {activePinSession.is_pin_active ? 'PIN AKTIF (24 JAM)' : 'PIN EXPIRED'}
+                                            {activePinSession.is_pin_active ? 'PIN AKTIF' : 'PIN EXPIRED'}
                                         </Badge>
                                         <span className="font-mono text-xs text-[#64748B]">
                                             {activePinSession.event_date_formatted}
@@ -391,8 +328,7 @@ export default function Dashboard({
                                         {activePinSession.title}
                                     </h2>
                                     <p className="text-xs text-[#64748B]">
-                                        Bagikan kode PIN 4-digit ini atau salin pesan WhatsApp ke grup komsel di akhir
-                                        acara. Berlaku hingga{' '}
+                                        Bagikan kode PIN 4-digit ini untuk mendapatkan feedback. Berlaku hingga{' '}
                                         <span className="font-mono font-medium text-[#334155]">
                                             {activePinSession.pin_expires_formatted ?? '-'}
                                         </span>
@@ -413,24 +349,6 @@ export default function Dashboard({
                                         </div>
                                     </div>
 
-                                    {/* 1-Click Copy for WhatsApp */}
-                                    <Button
-                                        type="button"
-                                        variant="default"
-                                        onClick={handleCopyWhatsAppMessage}
-                                    >
-                                        {copiedWhatsApp ? (
-                                            <>
-                                                <Check className="h-4 w-4 text-[#A7F3D0]" />
-                                                <span>Tersalin untuk WhatsApp!</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Copy className="h-4 w-4" />
-                                                <span>Copy untuk WhatsApp</span>
-                                            </>
-                                        )}
-                                    </Button>
 
                                     {/* Regenerate 24h PIN */}
                                     <Button
@@ -476,7 +394,7 @@ export default function Dashboard({
                                 {kpis.total_feedbacks}
                             </div>
                             <p className="mt-1 text-xs text-[#64748B]">
-                                Respons anonim terkumpul lintas sesi
+                                Total feedback seluruh acara FC
                             </p>
                         </CardContent>
                     </Card>
@@ -494,7 +412,7 @@ export default function Dashboard({
                                 <span className="font-mono text-xs text-[#64748B]">/ 5.00</span>
                             </div>
                             <p className="mt-1 text-xs text-[#64748B]">
-                                Skor kepuasan anggota komsel {cellName}
+                                Skor kepuasan anggota FC
                             </p>
                         </CardContent>
                     </Card>
@@ -509,7 +427,7 @@ export default function Dashboard({
                                 {kpis.unreviewed_count}
                             </div>
                             <p className="mt-1 text-xs text-[#64748B]">
-                                Menunggu evaluasi pengurus (Belum Dibahas)
+                                Menunggu evaluasi pengurus
                             </p>
                         </CardContent>
                     </Card>
@@ -526,111 +444,16 @@ export default function Dashboard({
                                 </span>
                                 {kpis.unreviewed_pastoral_count > 0 && (
                                     <Badge variant="warning">
-                                        {kpis.unreviewed_pastoral_count} Belum Dibahas
+                                        {kpis.unreviewed_pastoral_count} Perlu Didoakan
                                     </Badge>
                                 )}
                             </div>
                             <p className="mt-1 text-xs text-[#64748B]">
-                                Permohonan doa & sapaan personal anggota
+                                Total permohonan doa
                             </p>
                         </CardContent>
                     </Card>
                 </div>
-
-                {/* ========================================================================= */}
-                {/* 4. RECHARTS SATISFACTION TREND ACROSS RECENT SESSIONS                     */}
-                {/* ========================================================================= */}
-                <Card>
-                    <CardBanner>
-                        <span className="inline-flex items-center gap-1.5">
-                            <TrendingUp className="h-3.5 w-3.5 text-[#4F46E5]" />
-                            <span>TREN KEPUASAN ANGGOTA PER SESI ACARA</span>
-                        </span>
-                        <span>SKALA 1.0 – 5.0</span>
-                    </CardBanner>
-
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-base">
-                            Grafik Rata-Rata Kepuasan & Partisipasi Feedback
-                        </CardTitle>
-                        <CardDescription>
-                            Membandingkan skor rata-rata kepuasan (`#1E293B` Slate Bar) dan jumlah respons
-                            masuk (`#4F46E5` Indigo Line) di setiap sesi acara.
-                        </CardDescription>
-                    </CardHeader>
-
-                    <CardContent className="pt-2">
-                        {trendSeries.length === 0 ? (
-                            <div className="py-8 text-center font-mono text-xs text-[#64748B]">
-                                Belum ada data sesi acara untuk ditampilkan pada grafik.
-                            </div>
-                        ) : (
-                            <div className="h-64 w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <ComposedChart
-                                        data={trendSeries}
-                                        margin={{ top: 10, right: 16, left: -12, bottom: 0 }}
-                                    >
-                                        <CartesianGrid
-                                            strokeDasharray="3 3"
-                                            stroke="#E2E8F0"
-                                            vertical={false}
-                                        />
-                                        <XAxis
-                                            dataKey="event_date"
-                                            tick={{ fill: '#64748B', fontSize: 12 }}
-                                            axisLine={{ stroke: '#E2E8F0' }}
-                                            tickLine={false}
-                                        />
-                                        <YAxis
-                                            domain={[0, 5]}
-                                            ticks={[0, 1, 2, 3, 4, 5]}
-                                            tick={{ fill: '#64748B', fontSize: 12 }}
-                                            axisLine={false}
-                                            tickLine={false}
-                                        />
-                                        <Tooltip
-                                            contentStyle={{
-                                                backgroundColor: '#FFFFFF',
-                                                borderColor: '#E2E8F0',
-                                                borderRadius: '8px',
-                                                fontSize: '12px',
-                                                color: '#1E293B',
-                                            }}
-                                            formatter={(value, name) => {
-                                                if (name === 'average_rating') {
-                                                    return [`${value ?? 0} / 5.0`, 'Rata-Rata Rating'];
-                                                }
-                                                return [`${value ?? 0} respons`, 'Jumlah Feedback'];
-                                            }}
-                                            labelFormatter={(_label, payload) => {
-                                                const item = payload?.[0]?.payload as
-                                                    | FeedbackTrendPoint
-                                                    | undefined;
-                                                return item
-                                                    ? `${item.title} (${item.type_label})`
-                                                    : '';
-                                            }}
-                                        />
-                                        <Bar
-                                            dataKey="average_rating"
-                                            fill="#1E293B"
-                                            radius={[6, 6, 0, 0]}
-                                            barSize={38}
-                                        />
-                                        <Line
-                                            type="monotone"
-                                            dataKey="feedbacks_count"
-                                            stroke="#4F46E5"
-                                            strokeWidth={2}
-                                            dot={{ r: 4, fill: '#4F46E5' }}
-                                        />
-                                    </ComposedChart>
-                                </ResponsiveContainer>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
 
                 {/* ========================================================================= */}
                 {/* 5. FILTERING, SEARCH & PASTORAL CARE QUICK TOGGLE                         */}

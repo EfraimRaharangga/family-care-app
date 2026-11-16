@@ -5,8 +5,8 @@
  *                 access to the public `/feedback` PIN portal and 1-click local demo fill.
  * Key Dependencies: @inertiajs/react, @/layouts/auth-layout
  */
-import { Head, Link, useForm } from '@inertiajs/react';
-import { KeyRound, LoaderCircle, MessageSquareHeart, ShieldCheck } from 'lucide-react';
+import { useForm } from '@inertiajs/react';
+import { KeyRound, LoaderCircle} from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 import InputError from '@/components/input-error';
@@ -52,47 +52,9 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
     return (
         <AuthLayout
-            title="FC R&D Member Login"
-            description="Masuk menggunakan akun Google Whitelist pengurus atau kredensial lokal"
+            title="Halaman Login FC 5"
+            description="Selamat datang di FC 5 Management Web App"
         >
-            <Head title="Login Pengurus — FC R&D" />
-
-            {/* Quick Link for Cell Members looking for the Anonymous Feedback Portal */}
-            <div className="mb-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-3">
-                <div className="flex items-center justify-between gap-3">
-                    <div>
-                        <p className="font-mono text-[11px] font-semibold text-[#1E293B] uppercase">
-                            Anggota Komsel FC R&D?
-                        </p>
-                        <p className="text-xs text-[#64748B]">
-                            Kirim feedback 100% anonim dengan 4-digit PIN tanpa login.
-                        </p>
-                    </div>
-                    <Link href="/feedback">
-                        <Button type="button" variant="outline" size="sm">
-                            <MessageSquareHeart className="h-3.5 w-3.5 text-[#4F46E5]" />
-                            <span>Isi Feedback</span>
-                        </Button>
-                    </Link>
-                </div>
-            </div>
-
-            <div className="mb-4">
-                <a href="/auth/google/redirect" className="block w-full">
-                    <Button type="button" variant="outline" className="w-full">
-                        <ShieldCheck className="h-4 w-4 text-[#4F46E5]" />
-                        <span>Sign in with Google (FC R&D Whitelist)</span>
-                    </Button>
-                </a>
-            </div>
-
-            <div className="relative my-2 flex items-center justify-center">
-                <div className="w-full border-t border-dashed border-[#E2E8F0]" />
-                <span className="bg-[#F8FAFC] px-3 font-mono text-[11px] font-medium text-[#64748B] uppercase">
-                    ATAU LOGIN PENGURUS (LOCAL DEV)
-                </span>
-                <div className="w-full border-t border-dashed border-[#E2E8F0]" />
-            </div>
 
             <form className="flex flex-col gap-5" onSubmit={submit}>
                 <div className="grid gap-5">
